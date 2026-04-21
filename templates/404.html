@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found | {{ school_info.name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container narrow">
+        <div class="content-card reveal center-text">
+            <span class="eyebrow">404</span>
+            <h2>Page not found</h2>
+            <p>The page you requested is not available. Please use the main menu to continue.</p>
+            <a href="{{ url_for('home') }}" class="button">Back to Home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

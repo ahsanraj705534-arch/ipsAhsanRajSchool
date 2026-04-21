@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Home | {{ school_info.name }}{% endblock %}
+
+{% block content %}
+<section class="hero-section hero-section--school">
+    <div class="container hero-grid hero-grid--school">
+        <div class="hero-copy reveal">
+            <span class="hero-badge">{{ homepage_content.hero.eyebrow }}</span>
+            <h1>{{ homepage_content.hero.headline }}</h1>
+            <p class="hero-address">{{ school_info.address }}</p>
+            <p class="hero-text">{{ homepage_content.hero.description }}</p>
+
+            <div class="hero-list">
+                {% for item in homepage_content.hero.highlights %}
+                    <span>{{ item }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="hero-actions">
+                <a href="{{ url_for('student_registration') }}" class="button">Open Student Form</a>
+                {% if session.get('admin_logged_in') %}
+                    <a href="{{ url_for('view_students') }}" class="button button--ghost">Open Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="button button--ghost">Admin Login</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="hero-visual reveal">
+            <figure class="hero-photo-card">
+                <img src="{{ url_for('static', filename=homepage_content.hero.image) }}"
+                     alt="{{ homepage_content.hero.image_alt }}"
+                     class="hero-photo">
+                <figcaption>Representative student-life visual for the school homepage</figcaption>
+            </figure>
+
+            <div class="hero-stat-stack">
+                <div class="metric-card">
+                    <span>Total Students</span>
+                    <strong>{{ total_students }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Classes Covered</span>
+                    <strong>{{ class_count }}</strong>
+                </div>
+                <div class="metric-card metric-card--wide">
+                    <span>School Focus</span>
+                    <strong>Academic growth, discipline, confidence, and well-managed records</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">About The School</span>
+            <h2>{{ homepage_content.about.title }}</h2>
+        </div>
+
+        <div class="about-grid">
+            <article class="about-card reveal">
+                <p class="about-card__lead">{{ homepage_content.about.intro }}</p>
+                <p>{{ homepage_content.about.description }}</p>
+            </article>
+
+            <article class="about-points reveal">
+                {% for point in homepage_content.about.points %}
+                    <div class="about-point">
+                        <span class="about-point__marker"></span>
+                        <p>{{ point }}</p>
+                    </div>
+                {% endfor %}
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="section section--soft">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">{{ homepage_content.school_details.heading }}</span>
+            <h2>{{ homepage_content.school_details.title }}</h2>
+        </div>
+
+        <div class="detail-grid">
+            {% for item in homepage_content.school_details.points %}
+                <article class="feature-card reveal">
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.description }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section--soft">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Portal Facilities</span>
+            <h2>Digital facilities supporting school administration</h2>
+        </div>
+
+        <div class="facility-grid">
+            {% for item in homepage_content.facilities %}
+                <article class="facility-card reveal">
+                    <span class="facility-card__count">{{ "%02d"|format(loop.index) }}</span>
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.description }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Why Choose Us</span>
+            <h2>Why this system works better for Indian Public School</h2>
+        </div>
+
+        <div class="value-grid">
+            {% for item in homepage_content.why_choose_us %}
+                <article class="value-card reveal">
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.description }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section--gallery">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Student Life</span>
+            <h2>A more vibrant look at school life</h2>
+        </div>
+
+        <div class="gallery-grid">
+            {% for item in homepage_content.gallery %}
+                <figure class="gallery-card reveal">
+                    <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.alt }}">
+                    <figcaption>
+                        <span>{{ item.label }}</span>
+                        <strong>{{ item.caption }}</strong>
+                    </figcaption>
+                </figure>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="portal-band reveal">
+            <div>
+                <span class="eyebrow">Admissions and Records</span>
+                <h2>Admissions-ready, class-wise, and easy for office staff to manage</h2>
+                <p>Students can submit their information directly, and the school office can access records class-wise, search quickly, and export everything to Excel.</p>
+            </div>
+            <div class="portal-band__actions">
+                <a href="{{ url_for('student_registration') }}" class="button">Student Registration</a>
+                <a href="{{ url_for('contact') }}" class="button button--ghost">Contact School</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

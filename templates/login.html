@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login | {{ school_info.name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container narrow">
+        <div class="auth-card reveal">
+            <div class="section-heading section-heading--left">
+                <span class="eyebrow">Secure Access</span>
+                <h2>Admin Login</h2>
+                <p>Use admin credentials to manage student records, edit entries, delete data, and download Excel reports.</p>
+            </div>
+
+            <form method="post" class="styled-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+                <input type="hidden" name="next" value="{{ next_url }}">
+                <div class="form-field">
+                    <label for="username">Username</label>
+                    <input id="username" name="username" type="text" required autocomplete="username">
+                </div>
+                <div class="form-field">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="button button--full">Login</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

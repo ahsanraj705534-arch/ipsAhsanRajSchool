@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Contact | {{ school_info.name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container narrow">
+        <div class="section-heading reveal">
+            <span class="eyebrow">Contact</span>
+            <h2>School location and office access</h2>
+        </div>
+
+        <div class="info-card reveal">
+            <h3>{{ school_info.name }}</h3>
+            <p>{{ school_info.address }}</p>
+            <div class="info-points">
+                <div>
+                    <strong>Use this portal for</strong>
+                    <span>Student registration, data updates, class-wise search, and Excel download</span>
+                </div>
+                <div>
+                    <strong>Office workflow</strong>
+                    <span>Ask staff to use Admin Login for viewing, editing, deleting, and exporting records</span>
+                </div>
+                <div>
+                    <strong>Student entry</strong>
+                    <span>Use the Student Form page to submit records directly into the correct class list</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

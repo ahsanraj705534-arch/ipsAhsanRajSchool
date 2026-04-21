@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.student_name }} | {{ school_info.name }}{% endblock %}
+{% block body_class %}detail-page{% endblock %}
+
+{% block content %}
+<section class="section" id="student-top">
+    <div class="container narrow">
+        <div class="detail-card reveal">
+            <div class="detail-card__header">
+                <div>
+                    <span class="eyebrow">Student Profile</span>
+                    <h2>{{ student.student_name }}</h2>
+                    <p>{{ student.student_id }} | Class {{ student.student_class }} - Section {{ student.section }}</p>
+                </div>
+                <div class="dashboard-actions detail-actions--desktop">
+                    <a href="{{ url_for('edit_student', student_pk=student.id) }}" class="button">Edit</a>
+                    <a href="{{ url_for('print_student', student_pk=student.id) }}" class="button button--ghost">Print</a>
+                </div>
+            </div>
+
+            <div class="detail-summary-strip">
+                <div class="detail-summary-item">
+                    <span>Student ID</span>
+                    <strong>{{ student.student_id }}</strong>
+                </div>
+                <div class="detail-summary-item">
+                    <span>Class</span>
+                    <strong>{{ student.student_class }}</strong>
+                </div>
+                <div class="detail-summary-item">
+                    <span>Section</span>
+                    <strong>{{ student.section }}</strong>
+                </div>
+                <div class="detail-summary-item">
+                    <span>Source</span>
+                    <strong>{{ student.submission_source.title() }}</strong>
+                </div>
+            </div>
+
+            <div class="detail-section-stack">
+                <section class="detail-section">
+                    <div class="detail-section__header">
+                        <span class="eyebrow">Section 1</span>
+                        <h3>Family Details</h3>
+                    </div>
+                    <div class="detail-grid">
+                        <div><strong>Father's Name</strong><span>{{ student.father_name }}</span></div>
+                        <div><strong>Mother's Name</strong><span>{{ student.mother_name }}</span></div>
+                    </div>
+                </section>
+
+                <section class="detail-section">
+                    <div class="detail-section__header">
+                        <span class="eyebrow">Section 2</span>
+                        <h3>Student Details</h3>
+                    </div>
+                    <div class="detail-grid">
+                        <div><strong>Date of Birth</strong><span>{{ student.date_of_birth.strftime('%d-%m-%Y') }}</span></div>
+                        <div><strong>Gender</strong><span>{{ student.gender }}</span></div>
+                        <div><strong>Mobile Number</strong><span>{{ student.mobile_number }}</span></div>
+                        <div><strong>Submission Source</strong><span>{{ student.submission_source.title() }}</span></div>
+                    </div>
+                </section>
+
+                <section class="detail-section">
+                    <div class="detail-section__header">
+                        <span class="eyebrow">Section 3</span>
+                        <h3>Address</h3>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-grid__full"><strong>Address</strong><span>{{ student.address }}</span></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-mobile-bar">
+        <a href="{{ url_for('edit_student', student_pk=student.id) }}" class="detail-mobile-bar__action">
+            <span>Edit</span>
+            <strong>Student</strong>
+        </a>
+        <a href="{{ url_for('print_student', student_pk=student.id) }}" class="detail-mobile-bar__action detail-mobile-bar__action--ghost">
+            <span>Open</span>
+            <strong>Print</strong>
+        </a>
+        <a href="{{ url_for('view_students') }}" class="detail-mobile-bar__action detail-mobile-bar__action--ghost">
+            <span>Back</span>
+            <strong>Students</strong>
+        </a>
+    </div>
+</section>
+{% endblock %}

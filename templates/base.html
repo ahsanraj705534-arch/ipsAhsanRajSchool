@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>{% block title %}{{ school_info.name }}{% endblock %}</title>
+    <meta name="description" content="Indian Public School student registration, class-wise data management, and Excel export system.">
+    <script>
+        (function () {
+            try {
+                var savedTheme = localStorage.getItem("ips-theme");
+                var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                var theme = savedTheme || (prefersDark ? "dark" : "light");
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch (error) {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        }());
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="page-backdrop"></div>
+    <header class="site-header">
+        <div class="top-strip">
+            <div class="container top-strip__content">
+                <span>Smart school records for fast staff work</span>
+                <span>Rasulpur Dabheri, Budhana, Muzaffarnagar, Uttar Pradesh</span>
+            </div>
+        </div>
+        <div class="container nav-shell">
+            <a class="brand" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Indian Public School logo" class="brand__logo">
+                <div class="brand__text">
+                    <span class="eyebrow">Indian Public School</span>
+                    <strong>Student Management Portal</strong>
+                    <small>{{ school_info.address }}</small>
+                </div>
+            </a>
+
+            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark theme">
+                    <span class="theme-toggle__text">Dark Theme</span>
+                </button>
+
+                <nav class="site-nav" id="site-nav">
+                    <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}is-active{% endif %}">Home</a>
+                    <a href="{{ url_for('student_registration') }}" class="{% if request.endpoint == 'student_registration' %}is-active{% endif %}">Student Form</a>
+                    <a href="{{ url_for('documentation') }}" class="{% if request.endpoint == 'documentation' %}is-active{% endif %}">Documentation</a>
+                    {% if session.get('admin_logged_in') %}
+                        <a href="{{ url_for('add_student') }}" class="{% if request.endpoint == 'add_student' %}is-active{% endif %}">Add Student</a>
+                        <a href="{{ url_for('view_students') }}" class="{% if request.endpoint in ['view_students', 'class_view', 'student_detail', 'edit_student', 'print_student'] %}is-active{% endif %}">View Students</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}is-active{% endif %}">Admin Login</a>
+                    {% endif %}
+                    <a href="{{ url_for('contact') }}" class="{% if request.endpoint == 'contact' %}is-active{% endif %}">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container flash-stack">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash--{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>Indian Public School</h3>
+                <p>{{ school_info.address }}</p>
+            </div>
+            <div>
+                <h3>Portal Highlights</h3>
+                <p>Student-side registration, class-wise admin access, secure record updates, and Excel export.</p>
+            </div>
+            <div class="footer-credit">
+                <h3>Developed By</h3>
+                <p>Zishan Rajput (Robert Piyyra)</p>
+                <p>Web Developer</p>
+                <div class="footer-contact-links">
+                    <a href="tel:+916396120976">+91 96969 69696</a>
+                    <a href="mailto:mohdzishanrajput792@gmail.com">noorgraphics@gmail.com</a>
+                </div>
+            </div>
+            <div class="footer-actions">
+                <a href="{{ url_for('documentation') }}" class="button button--ghost">Documentation</a>
+                {% if session.get('admin_logged_in') %}
+                    <form action="{{ url_for('logout') }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+                        <button type="submit" class="button button--ghost">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="button button--ghost">Admin Login</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <span>&copy; {{ current_year }} {{ school_info.name }}.</span>
+            <!-- <span>Built for simple, class-wise student record management.</span> -->
+        </div>
+    </footer>
+</body>
+</html>

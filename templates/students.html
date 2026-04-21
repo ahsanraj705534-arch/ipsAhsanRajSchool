@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}View Students | {{ school_info.name }}{% endblock %}
+
+{% block content %}
+<section class="section" id="dashboard-top">
+    <div class="container">
+        <div class="dashboard-header reveal">
+            <div>
+                <span class="eyebrow">Admin Dashboard</span>
+                <h2>Student Records</h2>
+                <p>Search by name, class, or mobile number, then edit, print, delete, or export records.</p>
+            </div>
+            <div class="dashboard-actions">
+                <a href="{{ url_for('add_student') }}" class="button">Add Student</a>
+                <a href="{{ url_for('export_students') }}" class="button button--ghost">Download Excel</a>
+            </div>
+        </div>
+
+        <div class="dashboard-mobile-stats reveal">
+            <article class="dashboard-stat-card">
+                <span>Visible Records</span>
+                <strong>{{ students|length }}</strong>
+            </article>
+            <article class="dashboard-stat-card">
+                <span>Classes</span>
+                <strong>{{ class_summary|length }}</strong>
+            </article>
+            <article class="dashboard-stat-card">
+                <span>Current View</span>
+                <strong>
+                    {% if class_filter %}
+                        Class {{ class_filter }}
+                    {% else %}
+                        All Classes
+                    {% endif %}
+                </strong>
+            </article>
+        </div>
+
+        <div class="section-heading section-heading--left reveal">
+            <span class="eyebrow">Class-wise Access</span>
+            <h2>Open student records by class</h2>
+        </div>
+
+        <div class="class-grid reveal">
+            {% for class_name in class_options %}
+                <article class="class-card">
+                    <span class="class-card__label">Class</span>
+                    <h3>{{ class_name }}</h3>
+                    <p>{{ class_totals.get(class_name, 0) }} students available in this class</p>
+                    <div class="class-card__actions">
+                        <a href="{{ url_for('class_view', class_name=class_name) }}"
+                            class="button button--small {% if class_filter != class_name %}button--ghost{% endif %}">
+                            {% if class_filter == class_name %}Viewing Class{% else %}View Students{% endif %}
+                        </a>
+                        <a href="{{ url_for('export_students', class_name=class_name) }}"
+                           class="button button--small button--ghost">
+                            Download Excel
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        {% if search or class_filter or section_filter %}
+            <div class="dashboard-filter-state reveal">
+                <span class="dashboard-filter-state__label">Active Filters</span>
+                <div class="dashboard-filter-state__chips">
+                    {% if search %}
+                        <span class="filter-chip">Search: {{ search }}</span>
+                    {% endif %}
+                    {% if class_filter %}
+                        <span class="filter-chip">Class: {{ class_filter }}</span>
+                    {% endif %}
+                    {% if section_filter %}
+                        <span class="filter-chip">Section: {{ section_filter }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="summary-strip reveal">
+            {% for class_name, total in class_summary %}
+                <a href="{{ url_for('class_view', class_name=class_name) }}" class="summary-pill {% if class_filter == class_name %}is-active{% endif %}">
+                    <span>{{ class_name }}</span>
+                    <strong>{{ total }}</strong>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="content-card reveal" id="dashboard-filters">
+            <form method="get" class="filter-grid">
+                <div class="form-field">
+                    <label for="search">Search</label>
+                    <input id="search" type="text" name="search" placeholder="Name, ID, parent, mobile" value="{{ search }}">
+                </div>
+                <div class="form-field">
+                    <label for="class_filter">Class</label>
+                    <select id="class_filter" name="class_filter">
+                        <option value="">All classes</option>
+                        {% for class_name in class_options %}
+                            <option value="{{ class_name }}" {% if class_filter == class_name %}selected{% endif %}>{{ class_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="section_filter">Section</label>
+                    <select id="section_filter" name="section_filter">
+                        <option value="">All sections</option>
+                        {% for section in available_sections %}
+                            <option value="{{ section }}" {% if section_filter == section %}selected{% endif %}>{{ section }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="button">Apply Filter</button>
+                    <a href="{{ url_for('view_students') }}" class="button button--ghost">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-shell reveal">
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Section</th>
+                            <th>Parents</th>
+                            <th>Mobile</th>
+                            <th>Source</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if students %}
+                            {% for student in students %}
+                                <tr>
+                                    <td data-label="Student ID">{{ student.student_id }}</td>
+                                    <td data-label="Student Name">
+                                        <strong>{{ student.student_name }}</strong>
+                                        <small>{{ student.date_of_birth.strftime('%d-%m-%Y') }}</small>
+                                    </td>
+                                    <td data-label="Class">{{ student.student_class }}</td>
+                                    <td data-label="Section">{{ student.section }}</td>
+                                    <td data-label="Parents">
+                                        <strong>{{ student.father_name }}</strong>
+                                        <small>{{ student.mother_name }}</small>
+                                    </td>
+                                    <td data-label="Mobile">{{ student.mobile_number }}</td>
+                                    <td data-label="Source"><span class="status-badge">{{ student.submission_source.title() }}</span></td>
+                                    <td data-label="Actions">
+                                        <div class="table-actions">
+                                            <a href="{{ url_for('student_detail', student_pk=student.id) }}" class="button button--small">View</a>
+                                            <a href="{{ url_for('edit_student', student_pk=student.id) }}" class="button button--small button--ghost">Edit</a>
+                                            <a href="{{ url_for('print_student', student_pk=student.id) }}" class="button button--small button--ghost">Print</a>
+                                            <form action="{{ url_for('delete_student', student_pk=student.id) }}" method="post" data-confirm="Delete this student record?">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+                                                <button type="submit" class="button button--small button--danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="empty-state">No student records match the current search or class filter.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-mobile-bar">
+        <a href="{{ url_for('add_student') }}" class="dashboard-mobile-bar__action">
+            <span>Add</span>
+            <strong>Student</strong>
+        </a>
+        <a href="#dashboard-filters" class="dashboard-mobile-bar__action dashboard-mobile-bar__action--ghost">
+            <span>Open</span>
+            <strong>Filters</strong>
+        </a>
+        <a href="{{ url_for('export_students') }}" class="dashboard-mobile-bar__action dashboard-mobile-bar__action--ghost">
+            <span>Download</span>
+            <strong>Excel</strong>
+        </a>
+        <a href="#dashboard-top" class="dashboard-mobile-bar__action dashboard-mobile-bar__action--ghost">
+            <span>Back</span>
+            <strong>Top</strong>
+        </a>
+    </div>
+</section>
+{% endblock %}

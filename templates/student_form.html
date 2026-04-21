@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | {{ school_info.name }}{% endblock %}
+{% block body_class %}form-page{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container form-layout {% if form_mode in ['public', 'public_lookup', 'public_edit'] %}form-layout--form-first{% endif %}">
+        <div class="content-card reveal">
+            <span class="eyebrow">
+                {% if form_mode == 'public' %}
+                    Student Registration
+                {% elif form_mode == 'public_lookup' %}
+                    Find Existing Record
+                {% elif form_mode == 'public_edit' %}
+                    Student-side Record Update
+                {% elif form_mode == 'edit' %}
+                    Admin Record Update
+                {% else %}
+                    Admin Data Entry
+                {% endif %}
+            </span>
+
+            <h2>{{ page_title }}</h2>
+
+            <p>
+                {% if form_mode == 'public' %}
+                    Fill this form from the student side. The record will be saved under the selected class so staff can access it class-wise from the dashboard.
+                {% elif form_mode == 'public_lookup' %}
+                    Enter the student ID and the saved mobile number to open an existing student submission for editing.
+                {% elif form_mode == 'public_edit' %}
+                    Your record is verified. Update the student details below and save the latest information without changing the student ID.
+                {% elif form_mode == 'edit' %}
+                    Update the student record and save the latest information from the admin side.
+                {% else %}
+                    Add a new student record directly from the school office.
+                {% endif %}
+            </p>
+
+            <div class="note-box">
+                {% if form_mode == 'public_lookup' %}
+                    Use the same mobile number that is already saved in the student record.
+                {% elif student %}
+                    <strong>Student ID:</strong> {{ student.student_id }}
+                {% else %}
+                    Student ID will be generated automatically after the form is submitted.
+                {% endif %}
+            </div>
+
+            <div class="form-meta-list">
+                <div class="form-meta-item">
+                    <span>Mode</span>
+                    <strong>
+                        {% if form_mode == 'public' %}
+                            Public Submission
+                        {% elif form_mode == 'public_lookup' %}
+                            Record Lookup
+                        {% elif form_mode == 'public_edit' %}
+                            Public Edit
+                        {% elif form_mode == 'edit' %}
+                            Record Update
+                        {% else %}
+                            Office Entry
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="form-meta-item">
+                    <span>
+                        {% if form_mode == 'public_lookup' %}
+                            Access Check
+                        {% elif form_mode == 'public_edit' %}
+                            Verification
+                        {% else %}
+                            Class Linking
+                        {% endif %}
+                    </span>
+                    <strong>
+                        {% if form_mode == 'public_lookup' %}
+                            Student ID + mobile number required
+                        {% elif form_mode == 'public_edit' %}
+                            Student ID stays fixed during update
+                        {% else %}
+                            Saved class-wise for fast access
+                        {% endif %}
+                    </strong>
+                </div>
+            </div>
+
+            <div class="form-helper-actions">
+                {% if form_mode == 'public' %}
+                    <a href="{{ url_for('student_registration_lookup') }}" class="button button--ghost">Edit Existing Record</a>
+                    <a href="{{ url_for('home') }}" class="button button--ghost">Back Home</a>
+                {% elif form_mode == 'public_lookup' %}
+                    <a href="{{ url_for('student_registration') }}" class="button button--ghost">New Registration</a>
+                    <a href="{{ url_for('home') }}" class="button button--ghost">Back Home</a>
+                {% elif form_mode == 'public_edit' %}
+                    <a href="{{ url_for('student_registration_lookup') }}" class="button button--ghost">Find Another Record</a>
+                    <a href="{{ url_for('student_registration') }}" class="button button--ghost">New Registration</a>
+                {% else %}
+                    <a href="{{ url_for('view_students') }}" class="button button--ghost">Back to Students</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-card reveal">
+            {% if form_alert %}
+                <div class="form-inline-alert form-inline-alert--{{ form_alert.category }}">
+                    <strong>Check this record before saving</strong>
+                    <p>{{ form_alert.message }}</p>
+                </div>
+            {% endif %}
+
+            {% if form_mode == 'public_lookup' %}
+                <form method="post" class="styled-form form-stack">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+                    <section class="form-section">
+                        <div class="form-section__header">
+                            <span class="eyebrow">Lookup</span>
+                            <h3>Find your student record</h3>
+                            <p>Enter the student ID and saved mobile number to open the edit form safely.</p>
+                        </div>
+
+                        <div class="form-section-grid form-section-grid--lookup">
+                            <div class="form-field">
+                                <label for="student_id">Student ID</label>
+                                <input id="student_id" name="student_id" type="text" required maxlength="24"
+                                       placeholder="IPS20260001"
+                                       value="{{ lookup_values.get('student_id', '') }}">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="mobile_number">Mobile Number</label>
+                                <input id="mobile_number" name="mobile_number" type="tel" required inputmode="numeric"
+                                       pattern="[0-9]{10}" maxlength="10"
+                                       value="{{ lookup_values.get('mobile_number', '') }}">
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="form-actions form-field--full form-actions--desktop">
+                        <button type="submit" class="button">Find Record</button>
+                        <a href="{{ url_for('student_registration') }}" class="button button--ghost">New Registration</a>
+                    </div>
+
+                    <div class="form-mobile-bar">
+                        <button type="submit" class="form-mobile-bar__action">
+                            <span>Find</span>
+                            <strong>Record</strong>
+                        </button>
+                        <a href="{{ url_for('student_registration') }}" class="form-mobile-bar__action form-mobile-bar__action--ghost">
+                            <span>New</span>
+                            <strong>Registration</strong>
+                        </a>
+                    </div>
+                </form>
+            {% else %}
+                <form method="post" class="styled-form form-stack">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+                    <section class="form-section">
+                        <div class="form-section__header">
+                            <span class="eyebrow">Section 1</span>
+                            <h3>Student Details</h3>
+                            <p>Basic student identity and date of birth information.</p>
+                        </div>
+
+                        <div class="form-section-grid">
+                            <div class="form-field">
+                                <label for="student_name">Student Name</label>
+                                <input id="student_name" name="student_name" type="text" required maxlength="120"
+                                       pattern="[A-Za-z .'-]{2,120}"
+                                       value="{{ form_values.get('student_name', student.student_name if student else '') }}">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="date_of_birth">Date of Birth</label>
+                                <input id="date_of_birth" name="date_of_birth" type="date" required max="{{ today_iso }}"
+                                       value="{{ form_values.get('date_of_birth', student.date_of_birth.isoformat() if student else '') }}">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="gender">Gender</label>
+                                <select id="gender" name="gender" required>
+                                    <option value="">Select gender</option>
+                                    {% set current_gender = form_values.get('gender', student.gender if student else '') %}
+                                    {% for gender in gender_options %}
+                                        <option value="{{ gender }}" {% if current_gender == gender %}selected{% endif %}>{{ gender }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <div class="form-section__header">
+                            <span class="eyebrow">Section 2</span>
+                            <h3>Parent and Contact Details</h3>
+                            <p>Details used by the school office for communication and records.</p>
+                        </div>
+
+                        <div class="form-section-grid">
+                            <div class="form-field">
+                                <label for="father_name">Father's Name</label>
+                                <input id="father_name" name="father_name" type="text" required maxlength="120"
+                                       pattern="[A-Za-z .'-]{2,120}"
+                                       value="{{ form_values.get('father_name', student.father_name if student else '') }}">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="mother_name">Mother's Name</label>
+                                <input id="mother_name" name="mother_name" type="text" required maxlength="120"
+                                       pattern="[A-Za-z .'-]{2,120}"
+                                       value="{{ form_values.get('mother_name', student.mother_name if student else '') }}">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="mobile_number">Mobile Number</label>
+                                <input id="mobile_number" name="mobile_number" type="tel" required inputmode="numeric"
+                                       pattern="[0-9]{10}" maxlength="10"
+                                       value="{{ form_values.get('mobile_number', student.mobile_number if student else '') }}">
+                            </div>
+
+                            <div class="form-field form-field--full">
+                                <label for="address">Address</label>
+                                <textarea id="address" name="address" rows="4" required maxlength="300">{{ form_values.get('address', student.address if student else '') }}</textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <div class="form-section__header">
+                            <span class="eyebrow">Section 3</span>
+                            <h3>Academic Placement</h3>
+                            <p>Choose the class and section so the record stays organized correctly.</p>
+                        </div>
+
+                        <div class="form-section-grid">
+                            <div class="form-field">
+                                <label for="student_class">Class</label>
+                                <select id="student_class" name="student_class" required>
+                                    <option value="">Select class</option>
+                                    {% set current_class = form_values.get('student_class', student.student_class if student else '') %}
+                                    {% for class_name in class_options %}
+                                        <option value="{{ class_name }}" {% if current_class == class_name %}selected{% endif %}>{{ class_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="section">Section</label>
+                                <input id="section" name="section" type="text" required maxlength="5" list="section-list"
+                                       placeholder="A"
+                                       value="{{ form_values.get('section', student.section if student else '') }}">
+                                <datalist id="section-list">
+                                    {% for item in section_suggestions %}
+                                        <option value="{{ item }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="form-actions form-field--full form-actions--desktop">
+                        <button type="submit" class="button">
+                            {% if form_mode == 'public_edit' %}
+                                Update Registration
+                            {% elif form_mode == 'edit' %}
+                                Update Student
+                            {% elif form_mode == 'public' %}
+                                Submit Registration
+                            {% else %}
+                                Save Student
+                            {% endif %}
+                        </button>
+
+                        {% if form_mode == 'public' %}
+                            <a href="{{ url_for('home') }}" class="button button--ghost">Back Home</a>
+                        {% elif form_mode == 'public_edit' %}
+                            <a href="{{ url_for('student_registration_lookup') }}" class="button button--ghost">Back to Lookup</a>
+                        {% else %}
+                            <a href="{{ url_for('view_students') }}" class="button button--ghost">Back to Students</a>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-mobile-bar">
+                        <button type="submit" class="form-mobile-bar__action">
+                            <span>
+                                {% if form_mode == 'public_edit' %}
+                                    Update
+                                {% elif form_mode == 'edit' %}
+                                    Update
+                                {% elif form_mode == 'public' %}
+                                    Submit
+                                {% else %}
+                                    Save
+                                {% endif %}
+                            </span>
+                            <strong>
+                                {% if form_mode == 'public_edit' %}
+                                    Registration
+                                {% elif form_mode == 'edit' %}
+                                    Student
+                                {% elif form_mode == 'public' %}
+                                    Registration
+                                {% else %}
+                                    Record
+                                {% endif %}
+                            </strong>
+                        </button>
+
+                        {% if form_mode == 'public' %}
+                            <a href="{{ url_for('home') }}" class="form-mobile-bar__action form-mobile-bar__action--ghost">
+                                <span>Back</span>
+                                <strong>Home</strong>
+                            </a>
+                        {% elif form_mode == 'public_edit' %}
+                            <a href="{{ url_for('student_registration_lookup') }}" class="form-mobile-bar__action form-mobile-bar__action--ghost">
+                                <span>Back</span>
+                                <strong>Lookup</strong>
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('view_students') }}" class="form-mobile-bar__action form-mobile-bar__action--ghost">
+                                <span>Back</span>
+                                <strong>Students</strong>
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

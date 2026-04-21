@@ -1,0 +1,17 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="160" height="160" rx="34" fill="url(#paint0_linear)"/>
+  <path d="M80 24L118 39V74C118 97.5 103.1 118.6 80 128C56.9 118.6 42 97.5 42 74V39L80 24Z" fill="#F7FBFF" fill-opacity="0.12"/>
+  <path d="M80 33L109 44.6V72.1C109 91.4 97 109 80 116C63 109 51 91.4 51 72.1V44.6L80 33Z" stroke="#F0B543" stroke-width="5"/>
+  <path d="M60 66H100V91C100 96.5 95.5 101 90 101H70C64.5 101 60 96.5 60 91V66Z" fill="#F7FBFF"/>
+  <path d="M60 66L80 56L100 66" stroke="#0C2D57" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M70 74H90" stroke="#1F5EA8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M70 82H90" stroke="#1F5EA8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M80 44L82.9 50.8L90 51.4L84.6 56L86.3 63L80 59.2L73.7 63L75.4 56L70 51.4L77.1 50.8L80 44Z" fill="#F0B543"/>
+  <text x="80" y="142" text-anchor="middle" fill="#F7FBFF" font-size="20" font-family="Georgia, serif" font-weight="700">IPS</text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="17" y1="14" x2="144" y2="147" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C2D57"/>
+      <stop offset="1" stop-color="#1F5EA8"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Print Student | {{ student.student_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="print-page">
+    <div class="print-actions">
+        <button onclick="window.print()" class="button">Print</button>
+        <a href="{{ url_for('student_detail', student_pk=student.id) }}" class="button button--ghost">Back</a>
+    </div>
+
+    <section class="print-card">
+        <div class="print-header">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Indian Public School logo" class="brand__logo">
+            <div>
+                <h1>{{ school_info.name }}</h1>
+                <p>{{ school_info.address }}</p>
+            </div>
+        </div>
+
+        <table class="print-table">
+            <tr><th>Student ID</th><td>{{ student.student_id }}</td></tr>
+            <tr><th>Student Name</th><td>{{ student.student_name }}</td></tr>
+            <tr><th>Father's Name</th><td>{{ student.father_name }}</td></tr>
+            <tr><th>Mother's Name</th><td>{{ student.mother_name }}</td></tr>
+            <tr><th>Date of Birth</th><td>{{ student.date_of_birth.strftime('%d-%m-%Y') }}</td></tr>
+            <tr><th>Gender</th><td>{{ student.gender }}</td></tr>
+            <tr><th>Class</th><td>{{ student.student_class }}</td></tr>
+            <tr><th>Section</th><td>{{ student.section }}</td></tr>
+            <tr><th>Mobile Number</th><td>{{ student.mobile_number }}</td></tr>
+            <tr><th>Address</th><td>{{ student.address }}</td></tr>
+        </table>
+    </section>
+</body>
+</html>

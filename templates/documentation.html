@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation | {{ school_info.name }}{% endblock %}
+
+{% block body_class %}documentation-page{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="content-card documentation-hero reveal">
+            <div class="section-heading section-heading--left">
+                <span class="eyebrow">Portal Documentation</span>
+                <h2>How to use the Indian Public School student management portal</h2>
+            </div>
+
+            <p>
+                This page explains how students, guardians, and school staff should use the portal for
+                registration, class-wise student access, updates, printing, and Excel export. The goal is
+                to keep student data in one organized place so the office can work faster and with fewer mistakes.
+            </p>
+
+            <div class="doc-pill-list">
+                <span>Student-side registration</span>
+                <span>Class-wise records</span>
+                <span>Admin dashboard access</span>
+                <span>Edit, print, and export</span>
+            </div>
+
+            <div class="hero-actions">
+                <a href="{{ url_for('student_registration') }}" class="button">Open Student Form</a>
+                {% if session.get('admin_logged_in') %}
+                    <a href="{{ url_for('view_students') }}" class="button button--ghost">Open Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="button button--ghost">Admin Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--soft">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">What This Portal Does</span>
+            <h2>Main functions available for Indian Public School</h2>
+        </div>
+
+        <div class="feature-grid">
+            <article class="feature-card reveal">
+                <h3>Student Data Collection</h3>
+                <p>Students or guardians can submit admission and student details directly from the website.</p>
+            </article>
+            <article class="feature-card reveal">
+                <h3>Class-wise Management</h3>
+                <p>Every record is stored with class and section so staff can open the correct list quickly.</p>
+            </article>
+            <article class="feature-card reveal">
+                <h3>Office Record Updates</h3>
+                <p>Admin users can review entries, edit mistakes, delete duplicate records, and keep data clean.</p>
+            </article>
+            <article class="feature-card reveal">
+                <h3>Search and Filters</h3>
+                <p>Records can be filtered by class, section, or student name to save office time.</p>
+            </article>
+            <article class="feature-card reveal">
+                <h3>Print-ready Details</h3>
+                <p>Each student has a separate detail and print page for paperwork and quick reference.</p>
+            </article>
+            <article class="feature-card reveal">
+                <h3>Excel Download</h3>
+                <p>All student entries can be exported into Excel format for reporting and backup work.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">User Workflows</span>
+            <h2>Step-by-step use for students and school staff</h2>
+        </div>
+
+        <div class="doc-grid">
+            <article class="doc-card reveal">
+                <span class="class-card__label">Student Side</span>
+                <h3>How students or guardians should fill the form</h3>
+                <ol class="doc-steps">
+                    <li>Open the <strong>Student Form</strong> page from the main menu or class-wise quick access section.</li>
+                    <li>Enter the student details carefully, including name, parents' names, date of birth, gender, class, section, mobile number, and address.</li>
+                    <li>Check that the selected class and section are correct so the record goes into the proper class list.</li>
+                    <li>Submit the form and wait for the success message confirming the entry was saved.</li>
+                </ol>
+            </article>
+
+            <article class="doc-card reveal">
+                <span class="class-card__label">Admin Side</span>
+                <h3>How school staff should manage records</h3>
+                <ol class="doc-steps">
+                    <li>Open <strong>Admin Login</strong> and sign in with the school office username and password.</li>
+                    <li>Use <strong>View Students</strong> to open the full dashboard or jump into a specific class list.</li>
+                    <li>Search by student name or filter by class and section to find records quickly.</li>
+                    <li>Open a student record to edit details, print the profile, or delete incorrect entries when needed.</li>
+                </ol>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="section section--soft">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Data and Controls</span>
+            <h2>What gets saved and what admin users can do</h2>
+        </div>
+
+        <div class="doc-grid">
+            <article class="info-card reveal">
+                <h3>Student data fields collected</h3>
+                <ul class="doc-list">
+                    <li><strong>Student Name:</strong> Main identity for the record.</li>
+                    <li><strong>Father's Name and Mother's Name:</strong> Parent information for school records.</li>
+                    <li><strong>Date of Birth and Gender:</strong> Basic student profile details.</li>
+                    <li><strong>Class and Section:</strong> Used to place the student in the correct class-wise list.</li>
+                    <li><strong>Mobile Number:</strong> Contact number with validation for proper format.</li>
+                    <li><strong>Address:</strong> Home address for official school records.</li>
+                </ul>
+            </article>
+
+            <article class="info-card reveal">
+                <h3>Admin tools available in the dashboard</h3>
+                <ul class="doc-list">
+                    <li><strong>View all students:</strong> Open the complete student table in one place.</li>
+                    <li><strong>Class-wise access:</strong> Jump directly into a specific class list for easier office work.</li>
+                    <li><strong>Edit and delete:</strong> Correct mistakes and remove wrong entries when required.</li>
+                    <li><strong>Student detail page:</strong> Review the full profile before taking action.</li>
+                    <li><strong>Print view:</strong> Generate a clean paper-friendly version of student information.</li>
+                    <li><strong>Download Excel:</strong> Export the full record set into spreadsheet format.</li>
+                </ul>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="doc-compact-grid">
+            <article class="doc-card reveal">
+                <span class="class-card__label">Validation</span>
+                <h3>Form accuracy checks</h3>
+                <p>The form checks required fields, student and parent names, date format, class and gender selection, and the 10-digit mobile number format before saving.</p>
+            </article>
+
+            <article class="doc-card reveal">
+                <span class="class-card__label">Student ID</span>
+                <h3>Automatic record identity</h3>
+                <p>Each saved student receives an auto-generated student ID so records stay unique and easier to trace in the system.</p>
+            </article>
+
+            <article class="doc-card reveal">
+                <span class="class-card__label">Mobile Use</span>
+                <h3>Responsive design for phones</h3>
+                <p>The portal is designed to work on mobile devices so students, guardians, and office staff can use it comfortably on smaller screens.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="portal-band reveal">
+            <div>
+                <span class="eyebrow">Important Pages</span>
+                <h2>Quick guide to where each task happens</h2>
+                <div class="doc-route-list">
+                    <div>
+                        <strong>Home</strong>
+                        <span>Main school landing page with school overview, facilities, gallery, and quick access links.</span>
+                    </div>
+                    <div>
+                        <strong>Student Form</strong>
+                        <span>Used by students or guardians to submit new records into the system.</span>
+                    </div>
+                    <div>
+                        <strong>Documentation</strong>
+                        <span>This page explains how the portal works for both public users and staff.</span>
+                    </div>
+                    <div>
+                        <strong>Admin Dashboard</strong>
+                        <span>Used by school staff to search, filter, update, print, and export student records.</span>
+                    </div>
+                    <div>
+                        <strong>Contact</strong>
+                        <span>Shows school identity, location, and how the office should use the portal.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="portal-band__actions">
+                <a href="{{ url_for('home') }}" class="button button--ghost">Back to Home</a>
+                <a href="{{ url_for('contact') }}" class="button">Contact Page</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container narrow">
+        <div class="doc-note reveal">
+            <strong>Staff note:</strong> Keep the admin login details only with authorized school office staff. Ask students and guardians to use the Student Form page for new entries, while all editing, deleting, printing, and Excel export should be handled from the admin dashboard.
+        </div>
+    </div>
+</section>
+{% endblock %}
