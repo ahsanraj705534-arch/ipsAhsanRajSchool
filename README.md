@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Indian Public School Portal
 
 Responsive Flask website for **Indian Public School**, Rasulpur Dabheri, Budhana, Muzaffarnagar, Uttar Pradesh, India.
@@ -106,3 +107,7 @@ python app.py
 
 - The current school branding asset used in the site header is `static/images/logo.png`.
 - If MySQL is not configured yet, the app will automatically use `data/school.db` locally.
+=======
+# IPS_Student_Collection
+This is student data collection website.
+>>>>>>> a0c74e4e162ba5f01f79b0097a4695a38f59dcec
