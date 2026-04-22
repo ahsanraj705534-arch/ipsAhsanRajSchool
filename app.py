@@ -6,7 +6,7 @@ from copy import deepcopy
 from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
 from flask import (
@@ -22,7 +22,7 @@ from flask import (
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from openpyxl import Workbook
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, text
 from werkzeug.security import check_password_hash, generate_password_hash
 
 load_dotenv()
@@ -377,11 +377,23 @@ CONTACT_PAGE_CONTENT = {
 }
 
 
+def normalize_database_url(database_url: str) -> str:
+    database_url = database_url.strip()
+    if not database_url:
+        return ""
+
+    if database_url.startswith("postgres://"):
+        return database_url.replace("postgres://", "postgresql://", 1)
+
+    if database_url.startswith("mysql://"):
+        return database_url.replace("mysql://", "mysql+pymysql://", 1)
+
+    return database_url
+
+
 def build_database_uri() -> str:
-    database_url = os.getenv("DATABASE_URL", "").strip()
+    database_url = normalize_database_url(os.getenv("DATABASE_URL", ""))
     if database_url:
-        if database_url.startswith("mysql://"):
-            return database_url.replace("mysql://", "mysql+pymysql://", 1)
         return database_url
 
     mysql_host = os.getenv("MYSQL_HOST", "").strip()
@@ -406,10 +418,19 @@ def build_database_uri() -> str:
     return f"sqlite:///{sqlite_path}"
 
 
+def build_engine_options(database_uri: str) -> dict:
+    if database_uri.startswith("sqlite"):
+        return {}
+
+    return {"pool_pre_ping": True}
+
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "indian-public-school-change-this-secret")
 app.config["WTF_CSRF_SECRET_KEY"] = os.getenv("WTF_CSRF_SECRET_KEY", os.getenv("SECRET_KEY", "csrf-secret"))
-app.config["SQLALCHEMY_DATABASE_URI"] = build_database_uri()
+database_uri = build_database_uri()
+app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = build_engine_options(database_uri)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SESSION_COOKIE_SECURE"] = os.getenv("FLASK_ENV") == "production"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -1198,7 +1219,14 @@ def internal_error(error):
 
 
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+        with db.engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        logger.info("Database initialized successfully using %s", db.engine.url.drivername)
+    except Exception:
+        logger.exception("Database initialization failed")
+        raise
 
 
 if __name__ == "__main__":
