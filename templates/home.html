@@ -96,6 +96,44 @@
     </div>
 </section>
 
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">{{ homepage_content.school_timings.heading }}</span>
+            <h2>{{ homepage_content.school_timings.title }}</h2>
+        </div>
+
+        <div class="feature-grid">
+            {% for item in homepage_content.school_timings.points %}
+                <article class="feature-card reveal">
+                    <span class="class-card__label">{{ item.label }}</span>
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.description }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">{{ homepage_content.admission_steps.heading }}</span>
+            <h2>{{ homepage_content.admission_steps.title }}</h2>
+        </div>
+
+        <div class="facility-grid">
+            {% for item in homepage_content.admission_steps.points %}
+                <article class="facility-card reveal">
+                    <span class="facility-card__count">{{ "%02d"|format(loop.index) }}</span>
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.description }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
 <section class="section section--soft">
     <div class="container">
         <div class="section-heading">
@@ -127,6 +165,50 @@
                 <article class="value-card reveal">
                     <h3>{{ item.title }}</h3>
                     <p>{{ item.description }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">{{ homepage_content.achievements.heading }}</span>
+            <h2>{{ homepage_content.achievements.title }}</h2>
+        </div>
+
+        <div class="feature-grid">
+            {% for item in homepage_content.achievements.points %}
+                <article class="feature-card reveal">
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.description }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section--soft">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">School Leadership</span>
+            <h2>Meet the people guiding students and school management</h2>
+        </div>
+
+        <div class="contact-team-grid">
+            {% for leader in contact_page.leaders %}
+                <article class="feature-card reveal">
+                    <span class="class-card__label">{{ leader.role }}</span>
+                    <h3>{{ leader.name }}</h3>
+                    <p>{{ leader.summary }}</p>
+                    <p><strong>{{ leader.highlights[0].title }}:</strong> {{ leader.highlights[0].description }}</p>
+                    <div class="class-card__actions">
+                        <a href="{{ url_for('contact') }}" class="button button--small">Full Profile</a>
+                        {% if leader.phone_ready %}
+                            <a href="{{ leader.call_url }}" class="button button--small button--ghost">Call</a>
+                        {% endif %}
+                    </div>
                 </article>
             {% endfor %}
         </div>

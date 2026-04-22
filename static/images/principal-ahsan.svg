@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 880" role="img" aria-labelledby="title desc">
+  <title id="title">Principal Ahsan Sir portrait placeholder</title>
+  <desc id="desc">Decorative portrait placeholder for Principal Ahsan Sir.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0c2d57"/>
+      <stop offset="100%" stop-color="#3f7fd5"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f6fbff" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="880" rx="52" fill="url(#bg)"/>
+  <circle cx="610" cy="110" r="120" fill="#ffffff" fill-opacity="0.08"/>
+  <circle cx="120" cy="730" r="150" fill="#ffffff" fill-opacity="0.06"/>
+  <rect x="52" y="52" width="616" height="776" rx="38" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.18"/>
+  <text x="84" y="114" fill="#dbe9ff" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="28" letter-spacing="6">INDIAN PUBLIC SCHOOL</text>
+  <text x="84" y="160" fill="#ffffff" font-family="Georgia, Times New Roman, serif" font-size="54" font-weight="700">Ahsan Sir</text>
+  <text x="84" y="205" fill="#dbe9ff" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="28">Principal | Mathematics and Physics</text>
+  <circle cx="360" cy="392" r="114" fill="#f0c7a5"/>
+  <path d="M248 388c8-110 63-170 112-170 79 0 149 72 149 182-40-31-96-49-165-49-31 0-66 13-96 37z" fill="#0e2038"/>
+  <rect x="299" y="504" width="124" height="62" rx="24" fill="#efc3a1"/>
+  <path d="M217 790c12-122 78-206 143-227 66 44 129 105 143 227z" fill="#ffffff"/>
+  <path d="M239 790c24-101 85-177 121-201 45 28 108 101 121 201z" fill="#d7e6fb"/>
+  <path d="M180 790c44-118 122-203 180-203s136 85 180 203z" fill="#183b67"/>
+  <path d="M360 566l-36 45 36 54 36-54z" fill="#0c2d57"/>
+  <path d="M281 613l79 61 79-61 21 177H260z" fill="#f7fbff"/>
+  <rect x="84" y="736" width="202" height="56" rx="28" fill="#ffffff" fill-opacity="0.14"/>
+  <text x="116" y="772" fill="#ffffff" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="26" font-weight="700">Academic Leader</text>
+</svg>

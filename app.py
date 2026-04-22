@@ -2,6 +2,7 @@ import io
 import logging
 import os
 import re
+from copy import deepcopy
 from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
@@ -106,6 +107,70 @@ HOME_PAGE_CONTENT = {
             },
         ],
     },
+    "school_timings": {
+        "heading": "School Timings",
+        "title": "Daily time schedule for students and school activities",
+        "points": [
+            {
+                "label": "Morning Reporting",
+                "title": "Arrival and assembly",
+                "description": (
+                    "Students should reach the campus on time so attendance, prayer, and morning assembly can begin smoothly."
+                ),
+            },
+            {
+                "label": "Teaching Hours",
+                "title": "Regular class sessions",
+                "description": (
+                    "Daily academic periods are planned for focused classroom learning, revision, and guided subject practice."
+                ),
+            },
+            {
+                "label": "Break and Activity Time",
+                "title": "Balanced school routine",
+                "description": (
+                    "The school day includes time for short breaks, discipline routines, and student activity support."
+                ),
+            },
+            {
+                "label": "Office Support",
+                "title": "Admin and parent queries",
+                "description": (
+                    "School staff can use office hours for student record updates, admission help, and class-wise administrative work."
+                ),
+            },
+        ],
+    },
+    "admission_steps": {
+        "heading": "Admission Journey",
+        "title": "How parents and students can complete registration",
+        "points": [
+            {
+                "title": "Open the Student Form",
+                "description": (
+                    "Parents or guardians can start the process directly from the website using the student registration page."
+                ),
+            },
+            {
+                "title": "Fill Accurate Student Details",
+                "description": (
+                    "Enter the student name, parents' names, date of birth, class, section, mobile number, and address carefully."
+                ),
+            },
+            {
+                "title": "School Reviews The Record",
+                "description": (
+                    "The submitted record becomes available in the admin dashboard so school staff can verify and manage it class-wise."
+                ),
+            },
+            {
+                "title": "Update And Export Anytime",
+                "description": (
+                    "The school office can edit records, print profiles, and export Excel sheets whenever reporting or updates are needed."
+                ),
+            },
+        ],
+    },
     "facilities": [
         {
             "title": "Student Registration Form",
@@ -180,6 +245,36 @@ HOME_PAGE_CONTENT = {
             ),
         },
     ],
+    "achievements": {
+        "heading": "Achievements and Results",
+        "title": "How the school supports student progress and outcomes",
+        "points": [
+            {
+                "title": "Regular academic review",
+                "description": (
+                    "Students are guided through class-wise learning progress so teachers can track improvement and support better results."
+                ),
+            },
+            {
+                "title": "Concept clarity and practice",
+                "description": (
+                    "Strong focus on subject understanding, revision, and daily practice helps students build confidence in examinations."
+                ),
+            },
+            {
+                "title": "Recognition of discipline and effort",
+                "description": (
+                    "The school encourages good behavior, attendance, and sincere effort as part of student achievement."
+                ),
+            },
+            {
+                "title": "Parent-school transparency",
+                "description": (
+                    "Clear student records and organized data help families and staff follow student progress more effectively."
+                ),
+            },
+        ],
+    },
     "gallery": [
         {
             "image": "images/students-group.jpg",
@@ -198,6 +293,85 @@ HOME_PAGE_CONTENT = {
             "alt": "Portrait of a young Indian student in school uniform.",
             "label": "Student Portrait",
             "caption": "A stronger student-focused visual for the school homepage.",
+        },
+    ],
+}
+CONTACT_PAGE_CONTENT = {
+    "office": {
+        "title": "School location and office access",
+        "description": (
+            "Reach the school office easily, open the campus location in Google Maps, "
+            "and use the leadership contact buttons for direct communication."
+        ),
+        "address_label": "School Address",
+        "map_label": "Open Google Maps",
+    },
+    "leaders": [
+        {
+            "role": "Principal",
+            "eyebrow": "Academic Leadership",
+            "name": "Ahsan Sir",
+            "image": "images/principal-ahsan.svg",
+            "image_alt": "Portrait placeholder for Principal Ahsan Sir",
+            "summary": (
+                "Ahsan Sir leads the school with a strong academic background in "
+                "Mathematics and Physics. He encourages disciplined study, concept "
+                "clarity, and confident learning habits in the classroom."
+            ),
+            "highlights": [
+                {
+                    "title": "Subject Strength",
+                    "description": "Mathematics and Physics",
+                },
+                {
+                    "title": "Teaching Style",
+                    "description": (
+                        "Clear concepts, logical thinking, and regular student guidance."
+                    ),
+                },
+                {
+                    "title": "About The Teacher",
+                    "description": (
+                        "He motivates students to stay curious, practice regularly, "
+                        "and build strong academic fundamentals with confidence."
+                    ),
+                },
+            ],
+            "mobile_number": "+91 7055341433",
+            "email": "ahsan@example.com",
+        },
+        {
+            "role": "Manager",
+            "eyebrow": "School Management",
+            "name": "Najim Sir",
+            "image": "images/manager-najim.svg",
+            "image_alt": "Portrait placeholder for Manager Najim Sir",
+            "summary": (
+                "Najim Sir supports the school with a Science-focused outlook and "
+                "practical guidance. He helps create an organized, student-friendly "
+                "environment where learning and administration move smoothly together."
+            ),
+            "highlights": [
+                {
+                    "title": "Subject Strength",
+                    "description": "Science",
+                },
+                {
+                    "title": "Work Focus",
+                    "description": (
+                        "School management, student support, and a balanced learning atmosphere."
+                    ),
+                },
+                {
+                    "title": "About The Teacher",
+                    "description": (
+                        "He encourages practical understanding, steady discipline, "
+                        "and positive support so students can grow with confidence."
+                    ),
+                },
+            ],
+            "mobile_number": "+91 XXXXXXXXXX",
+            "email": "najim@example.com",
         },
     ],
 }
@@ -464,6 +638,34 @@ def public_student_edit_is_authorized(student_id: str) -> bool:
     )
 
 
+def build_contact_page_content():
+    contact_page = deepcopy(CONTACT_PAGE_CONTENT)
+    office_address = (
+        "Indian Public School, Rasulpur Dabheri, Budhana, Muzaffarnagar, Uttar Pradesh, India"
+    )
+
+    contact_page["office"]["address"] = office_address
+    contact_page["office"]["map_url"] = (
+        "https://www.google.com/maps/search/?api=1&query="
+        f"{quote_plus(office_address)}"
+    )
+
+    for leader in contact_page["leaders"]:
+        digits = re.sub(r"\D", "", leader["mobile_number"])
+        leader["phone_ready"] = len(digits) >= 10
+        leader["email_ready"] = bool(leader["email"] and "@" in leader["email"])
+
+        if leader["phone_ready"]:
+            leader["call_url"] = f"tel:+{digits}"
+            leader["whatsapp_url"] = f"https://wa.me/{digits}"
+        else:
+            leader["call_url"] = "#"
+            leader["whatsapp_url"] = "#"
+        leader["email_url"] = f"mailto:{leader['email']}" if leader["email_ready"] else "#"
+
+    return contact_page
+
+
 @app.context_processor
 def inject_school_context():
     return {
@@ -497,12 +699,13 @@ def home():
         class_summary=class_summary,
         class_totals={class_name: total for class_name, total in class_summary},
         homepage_content=HOME_PAGE_CONTENT,
+        contact_page=build_contact_page_content(),
     )
 
 
 @app.route("/contact")
 def contact():
-    return render_template("contact.html")
+    return render_template("contact.html", contact_page=build_contact_page_content())
 
 
 @app.route("/documentation")

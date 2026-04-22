@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 880" role="img" aria-labelledby="title desc">
+  <title id="title">Manager Najim Sir portrait placeholder</title>
+  <desc id="desc">Decorative portrait placeholder for Manager Najim Sir.</desc>
+  <defs>
+    <linearGradient id="bg2" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#12345f"/>
+      <stop offset="100%" stop-color="#19a0a4"/>
+    </linearGradient>
+    <linearGradient id="card2" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f6fbff" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="880" rx="52" fill="url(#bg2)"/>
+  <circle cx="122" cy="126" r="118" fill="#ffffff" fill-opacity="0.08"/>
+  <circle cx="592" cy="734" r="160" fill="#ffffff" fill-opacity="0.06"/>
+  <rect x="52" y="52" width="616" height="776" rx="38" fill="url(#card2)" stroke="#ffffff" stroke-opacity="0.18"/>
+  <text x="84" y="114" fill="#d9fbff" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="28" letter-spacing="6">INDIAN PUBLIC SCHOOL</text>
+  <text x="84" y="160" fill="#ffffff" font-family="Georgia, Times New Roman, serif" font-size="54" font-weight="700">Najim Sir</text>
+  <text x="84" y="205" fill="#d9fbff" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="28">Manager | Science</text>
+  <circle cx="360" cy="392" r="114" fill="#efc39f"/>
+  <path d="M236 395c0-101 56-173 126-173 86 0 154 84 154 180-45-25-100-39-157-39-44 0-84 9-123 32z" fill="#13253f"/>
+  <rect x="300" y="504" width="122" height="62" rx="24" fill="#efc19c"/>
+  <path d="M208 790c21-125 81-196 152-227 76 30 137 101 152 227z" fill="#ffffff"/>
+  <path d="M232 790c14-112 71-177 128-206 60 31 113 95 128 206z" fill="#d7f4f5"/>
+  <path d="M176 790c36-125 117-203 184-203s148 78 184 203z" fill="#15365f"/>
+  <rect x="327" y="602" width="66" height="159" rx="22" fill="#0f2745"/>
+  <rect x="84" y="736" width="212" height="56" rx="28" fill="#ffffff" fill-opacity="0.14"/>
+  <text x="118" y="772" fill="#ffffff" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="26" font-weight="700">Science Mentor</text>
+</svg>

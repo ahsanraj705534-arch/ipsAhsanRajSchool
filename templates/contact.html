@@ -4,29 +4,103 @@
 
 {% block content %}
 <section class="section">
-    <div class="container narrow">
+    <div class="container">
         <div class="section-heading reveal">
             <span class="eyebrow">Contact</span>
-            <h2>School location and office access</h2>
+            <h2>{{ contact_page.office.title }}</h2>
         </div>
 
-        <div class="info-card reveal">
-            <h3>{{ school_info.name }}</h3>
-            <p>{{ school_info.address }}</p>
+        <div class="info-card contact-overview reveal">
+            <div>
+                <h3>{{ school_info.name }}</h3>
+                <p>{{ contact_page.office.description }}</p>
+                <div class="contact-overview__meta">
+                    <strong>{{ contact_page.office.address_label }}</strong>
+                    <span>{{ contact_page.office.address }}</span>
+                </div>
+                <div class="contact-overview__actions">
+                    <a href="{{ contact_page.office.map_url }}"
+                       class="button"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        {{ contact_page.office.map_label }}
+                    </a>
+                </div>
+            </div>
+
             <div class="info-points">
                 <div>
                     <strong>Use this portal for</strong>
-                    <span>Student registration, data updates, class-wise search, and Excel download</span>
+                    <span>Student registration, data updates, class-wise search, and Excel download.</span>
                 </div>
                 <div>
                     <strong>Office workflow</strong>
-                    <span>Ask staff to use Admin Login for viewing, editing, deleting, and exporting records</span>
+                    <span>Ask staff to use Admin Login for viewing, editing, deleting, and exporting records.</span>
                 </div>
                 <div>
                     <strong>Student entry</strong>
-                    <span>Use the Student Form page to submit records directly into the correct class list</span>
+                    <span>Use the Student Form page to submit records directly into the correct class list.</span>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--soft">
+    <div class="container">
+        <div class="section-heading reveal">
+            <span class="eyebrow">Leadership Team</span>
+            <h2>Meet the principal and manager</h2>
+        </div>
+
+        <div class="contact-team-grid">
+            {% for leader in contact_page.leaders %}
+                <article class="leader-card reveal">
+                    <div class="leader-card__media">
+                        <img src="{{ url_for('static', filename=leader.image) }}"
+                             alt="{{ leader.image_alt }}">
+                        <span class="leader-card__badge">{{ leader.role }}</span>
+                    </div>
+
+                    <div class="leader-card__content">
+                        <span class="eyebrow">{{ leader.eyebrow }}</span>
+                        <h3>{{ leader.name }}</h3>
+                        <p class="leader-card__summary">{{ leader.summary }}</p>
+
+                        <div class="leader-highlights">
+                            {% for item in leader.highlights %}
+                                <div>
+                                    <strong>{{ item.title }}</strong>
+                                    <span>{{ item.description }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="leader-actions">
+                            <a href="{{ leader.call_url }}"
+                               class="button button--small {% if not leader.phone_ready %}button--ghost is-disabled{% endif %}"
+                               {% if leader.phone_ready %}target="_self"{% else %}aria-disabled="true" tabindex="-1"{% endif %}>
+                                Call Now
+                            </a>
+                            <a href="{{ leader.email_url }}"
+                               class="button button--small button--ghost {% if not leader.email_ready %}is-disabled{% endif %}"
+                               {% if not leader.email_ready %}aria-disabled="true" tabindex="-1"{% endif %}>
+                                Email
+                            </a>
+                            <a href="{{ leader.whatsapp_url }}"
+                               class="button button--small button--ghost {% if not leader.phone_ready %}is-disabled{% endif %}"
+                               {% if leader.phone_ready %}target="_blank" rel="noopener noreferrer"{% else %}aria-disabled="true" tabindex="-1"{% endif %}>
+                                WhatsApp
+                            </a>
+                        </div>
+
+                        <div class="leader-contact">
+                            <strong>Mobile Number</strong>
+                            <span>{{ leader.mobile_number }}</span>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
         </div>
     </div>
 </section>
