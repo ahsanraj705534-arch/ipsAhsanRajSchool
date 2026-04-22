@@ -1202,5 +1202,5 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    debug_mode = os.getenv("FLASK_ENV") != "production"
-    app.run(debug=debug_mode)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
