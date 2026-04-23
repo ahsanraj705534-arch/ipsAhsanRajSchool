@@ -433,10 +433,33 @@ def get_config_value(name: str, fallback: str = "", *, required_in_production: b
     return fallback
 
 
+def build_postgres_uri_from_env(prefix: str = "") -> str:
+    host = os.getenv(f"{prefix}PGHOST", "").strip()
+    port = os.getenv(f"{prefix}PGPORT", "5432").strip()
+    user = os.getenv(f"{prefix}PGUSER", "").strip()
+    password = os.getenv(f"{prefix}PGPASSWORD", "").strip()
+    database = os.getenv(f"{prefix}PGDATABASE", "").strip()
+
+    if not all([host, user, database]):
+        return ""
+
+    auth = quote_plus(user)
+    if password:
+        auth = f"{auth}:{quote_plus(password)}"
+
+    return f"postgresql://{auth}@{host}:{port}/{database}"
+
+
 def build_database_uri() -> str:
-    database_url = normalize_database_url(os.getenv("DATABASE_URL", ""))
-    if database_url:
-        return database_url
+    for variable_name in ("DATABASE_URL", "DATABASE_PUBLIC_URL"):
+        database_url = normalize_database_url(os.getenv(variable_name, ""))
+        if database_url:
+            return database_url
+
+    for prefix in ("", "POSTGRES_"):
+        postgres_uri = build_postgres_uri_from_env(prefix)
+        if postgres_uri:
+            return postgres_uri
 
     mysql_host = os.getenv("MYSQL_HOST", "").strip()
     mysql_port = os.getenv("MYSQL_PORT", "3306").strip()
@@ -455,8 +478,9 @@ def build_database_uri() -> str:
 
     if is_production_environment():
         raise RuntimeError(
-            "DATABASE_URL must be set in production. On Railway, add a PostgreSQL "
-            "service and reference its DATABASE_URL in your web service variables."
+            "A production database URL is required. On Railway, add a PostgreSQL "
+            "service and reference either DATABASE_URL or DATABASE_PUBLIC_URL in "
+            "your web service variables."
         )
 
     project_root = Path(__file__).resolve().parent
@@ -1301,5 +1325,5 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
