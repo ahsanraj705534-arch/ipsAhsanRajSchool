@@ -7,6 +7,7 @@ from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
 from urllib.parse import quote_plus
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from flask import (
@@ -24,6 +25,7 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from openpyxl import Workbook
 from sqlalchemy import func, or_, text
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 load_dotenv()
 
@@ -391,6 +393,46 @@ def normalize_database_url(database_url: str) -> str:
     return database_url
 
 
+def env_flag(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def is_railway_environment() -> bool:
+    return any(
+        os.getenv(name)
+        for name in (
+            "RAILWAY_PROJECT_ID",
+            "RAILWAY_SERVICE_ID",
+            "RAILWAY_ENVIRONMENT",
+            "RAILWAY_STATIC_URL",
+            "RAILWAY_PUBLIC_DOMAIN",
+        )
+    )
+
+
+def is_production_environment() -> bool:
+    flask_env = os.getenv("FLASK_ENV", "").strip().lower()
+    if flask_env:
+        return flask_env == "production"
+
+    return is_railway_environment()
+
+
+def get_config_value(name: str, fallback: str = "", *, required_in_production: bool = False) -> str:
+    value = os.getenv(name, "").strip()
+    if value:
+        return value
+
+    if required_in_production and is_production_environment():
+        raise RuntimeError(f"{name} must be set in production.")
+
+    return fallback
+
+
 def build_database_uri() -> str:
     database_url = normalize_database_url(os.getenv("DATABASE_URL", ""))
     if database_url:
@@ -411,6 +453,12 @@ def build_database_uri() -> str:
             "?charset=utf8mb4"
         )
 
+    if is_production_environment():
+        raise RuntimeError(
+            "DATABASE_URL must be set in production. On Railway, add a PostgreSQL "
+            "service and reference its DATABASE_URL in your web service variables."
+        )
+
     project_root = Path(__file__).resolve().parent
     data_dir = project_root / "data"
     data_dir.mkdir(exist_ok=True)
@@ -420,19 +468,39 @@ def build_database_uri() -> str:
 
 def build_engine_options(database_uri: str) -> dict:
     if database_uri.startswith("sqlite"):
-        return {}
+        return {"connect_args": {"timeout": 30}}
 
-    return {"pool_pre_ping": True}
+    engine_options = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "pool_timeout": 30,
+    }
+
+    if database_uri.startswith("postgresql") and env_flag("DATABASE_SSL_REQUIRE"):
+        engine_options["connect_args"] = {"sslmode": "require"}
+
+    return engine_options
 
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "indian-public-school-change-this-secret")
-app.config["WTF_CSRF_SECRET_KEY"] = os.getenv("WTF_CSRF_SECRET_KEY", os.getenv("SECRET_KEY", "csrf-secret"))
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+is_production = is_production_environment()
+secret_key = get_config_value(
+    "SECRET_KEY",
+    "indian-public-school-change-this-secret",
+    required_in_production=True,
+)
+csrf_secret_key = get_config_value("WTF_CSRF_SECRET_KEY", secret_key)
+
+app.config["SECRET_KEY"] = secret_key
+app.config["WTF_CSRF_SECRET_KEY"] = csrf_secret_key
 database_uri = build_database_uri()
 app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = build_engine_options(database_uri)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SESSION_COOKIE_SECURE"] = os.getenv("FLASK_ENV") == "production"
+app.config["PREFERRED_URL_SCHEME"] = "https" if is_production else "http"
+app.config["SESSION_COOKIE_SECURE"] = is_production
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 db = SQLAlchemy(app)
@@ -441,6 +509,9 @@ csrf = CSRFProtect(app)
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+if database_uri.startswith("sqlite"):
+    logger.warning("Using local SQLite database at %s", database_uri)
 
 
 class Student(db.Model):
@@ -1230,5 +1301,5 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
