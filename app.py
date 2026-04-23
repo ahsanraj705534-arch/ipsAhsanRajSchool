@@ -340,7 +340,7 @@ CONTACT_PAGE_CONTENT = {
                 },
             ],
             "mobile_number": "+91 7055341433",
-            "email": "ahsan@example.com",
+            "email": "ahsanraj705534@gmail.com",
         },
         {
             "role": "Manager",
