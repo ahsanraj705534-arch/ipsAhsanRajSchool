@@ -57,9 +57,12 @@
             {% for leader in contact_page.leaders %}
                 <article class="leader-card reveal">
                     <div class="leader-card__media">
-                        <img src="{{ url_for('static', filename=leader.image) }}"
-                             alt="{{ leader.image_alt }}">
-                        <span class="leader-card__badge">{{ leader.role }}</span>
+                        <figure class="leader-card__portrait">
+                            <img src="{{ url_for('static', filename=leader.image) }}"
+                                 alt="{{ leader.image_alt }}"
+                                 style="--leader-image-position: {{ leader.image_position | default('center top') }}; --leader-image-scale: {{ leader.image_scale | default('1') }};">
+                            <span class="leader-card__badge">{{ leader.role }}</span>
+                        </figure>
                     </div>
 
                     <div class="leader-card__content">
