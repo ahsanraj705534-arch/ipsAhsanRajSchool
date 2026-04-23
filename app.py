@@ -313,7 +313,7 @@ CONTACT_PAGE_CONTENT = {
             "role": "Principal",
             "eyebrow": "Academic Leadership",
             "name": "Ahsan Sir",
-            "image": "images/principal-ahsan.svg",
+            "image": "images/principal-ahsan.jpeg",
             "image_alt": "Portrait placeholder for Principal Ahsan Sir",
             "summary": (
                 "Ahsan Sir leads the school with a strong academic background in "
@@ -346,7 +346,7 @@ CONTACT_PAGE_CONTENT = {
             "role": "Manager",
             "eyebrow": "School Management",
             "name": "Najim Sir",
-            "image": "images/manager-najim.svg",
+            "image": "images/manager-najim.jpeg",
             "image_alt": "Portrait placeholder for Manager Najim Sir",
             "summary": (
                 "Najim Sir supports the school with a Science-focused outlook and "
