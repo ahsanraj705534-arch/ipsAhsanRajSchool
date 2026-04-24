@@ -29,9 +29,7 @@
                     <span class="eyebrow">Student Record</span>
                     <h2>{{ student.student_name }}</h2>
                     <p>{{ student.student_id }} | Class {{ student.student_class }} | Section {{ student.section }}</p>
-                </div>
-
-                <aside class="print-photo-panel">
+                     <aside class="print-photo-panel">
                     <div class="print-photo-card print-photo-card--passport">
                         {% if student.photo_url %}
                             <img src="{{ student.photo_url }}" alt="Student photo for {{ student.student_name }}">
@@ -43,6 +41,9 @@
                         {% endif %}
                     </div>
                 </aside>
+                </div>
+
+               
 
                 <div class="print-summary-grid">
                     <div>
