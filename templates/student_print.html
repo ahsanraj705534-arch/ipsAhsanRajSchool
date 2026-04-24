@@ -29,21 +29,6 @@
                     <span class="eyebrow">Student Record</span>
                     <h2>{{ student.student_name }}</h2>
                     <p>{{ student.student_id }} | Class {{ student.student_class }} | Section {{ student.section }}</p>
-
-                    <div class="print-summary-grid">
-                        <div>
-                            <span>Submission Source</span>
-                            <strong>{{ student.submission_source.title() }}</strong>
-                        </div>
-                        <div>
-                            <span>Gender</span>
-                            <strong>{{ student.gender }}</strong>
-                        </div>
-                        <div>
-                            <span>Date of Birth</span>
-                            <strong>{{ student.date_of_birth.strftime('%d-%m-%Y') }}</strong>
-                        </div>
-                    </div>
                 </div>
 
                 <aside class="print-photo-panel">
@@ -58,6 +43,21 @@
                         {% endif %}
                     </div>
                 </aside>
+
+                <div class="print-summary-grid">
+                    <div>
+                        <span>Submission Source</span>
+                        <strong>{{ student.submission_source.title() }}</strong>
+                    </div>
+                    <div>
+                        <span>Gender</span>
+                        <strong>{{ student.gender }}</strong>
+                    </div>
+                    <div>
+                        <span>Date of Birth</span>
+                        <strong>{{ student.date_of_birth.strftime('%d-%m-%Y') }}</strong>
+                    </div>
+                </div>
             </div>
         </div>
 

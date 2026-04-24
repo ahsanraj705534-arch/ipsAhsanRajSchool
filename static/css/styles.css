@@ -2019,13 +2019,17 @@ html[data-theme="dark"] .leader-contact {
 .print-identity {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 35mm;
+    grid-template-areas:
+        "intro photo"
+        "summary summary";
     gap: 1rem;
     align-items: start;
 }
 
 .print-identity__copy {
+    grid-area: intro;
     display: grid;
-    gap: 0.9rem;
+    gap: 0.55rem;
 }
 
 .print-identity__copy h2 {
@@ -2040,8 +2044,9 @@ html[data-theme="dark"] .leader-contact {
 }
 
 .print-summary-grid {
+    grid-area: summary;
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.8rem;
 }
 
@@ -2076,6 +2081,7 @@ html[data-theme="dark"] .leader-contact {
 }
 
 .print-photo-panel {
+    grid-area: photo;
     display: grid;
     gap: 0;
     align-content: start;
@@ -2406,6 +2412,13 @@ html[data-theme="dark"] .leader-contact {
     .print-identity,
     .print-summary-grid {
         grid-template-columns: 1fr;
+    }
+
+    .print-identity {
+        grid-template-areas:
+            "intro"
+            "photo"
+            "summary";
     }
 
     .print-header {
