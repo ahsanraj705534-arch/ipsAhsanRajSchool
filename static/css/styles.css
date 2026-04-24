@@ -1992,11 +1992,19 @@ html[data-theme="dark"] .leader-contact {
 }
 
 .print-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    gap: 1.25rem;
+    align-items: start;
+    padding-bottom: 1.25rem;
+    border-bottom: 2px solid rgba(19, 66, 122, 0.1);
+}
+
+.print-header__branding {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 2px solid rgba(19, 66, 122, 0.1);
+    min-width: 0;
 }
 
 .print-header h1 {
@@ -2011,9 +2019,8 @@ html[data-theme="dark"] .leader-contact {
 
 .print-identity {
     display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(180px, 220px);
-    gap: 1.5rem;
-    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 1rem;
 }
 
 .print-identity__copy {
@@ -2066,6 +2073,12 @@ html[data-theme="dark"] .leader-contact {
     border: 1px solid rgba(19, 66, 122, 0.14);
     background: linear-gradient(180deg, rgba(231, 242, 255, 0.92), rgba(247, 251, 255, 1));
     box-shadow: var(--shadow-md);
+}
+
+.print-photo-card--top {
+    width: min(100%, 180px);
+    justify-self: end;
+    align-self: start;
 }
 
 .print-photo-card img {
@@ -2370,6 +2383,7 @@ html[data-theme="dark"] .leader-contact {
     }
 
     .student-photo-layout,
+    .print-header,
     .print-identity,
     .print-summary-grid {
         grid-template-columns: 1fr;
@@ -2483,6 +2497,10 @@ html[data-theme="dark"] .leader-contact {
     .student-photo-card,
     .print-photo-card {
         max-width: 320px;
+    }
+
+    .print-photo-card--top {
+        width: min(100%, 180px);
     }
 
     .leader-card__content h3 {
