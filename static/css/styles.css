@@ -985,12 +985,120 @@ textarea {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+.form-field input[type="file"] {
+    padding: 0.8rem 0.9rem;
+    background: rgba(236, 244, 255, 0.72);
+}
+
 .form-field input:focus,
 .form-field select:focus,
 .form-field textarea:focus {
     border-color: rgba(19, 66, 122, 0.35);
     box-shadow: 0 0 0 4px rgba(31, 94, 168, 0.12);
     transform: translateY(-1px);
+}
+
+.form-help {
+    color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.checkbox-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 0.25rem;
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.checkbox-field input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.student-photo-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
+    gap: 1.2rem;
+    align-items: start;
+}
+
+.student-photo-panel {
+    display: grid;
+    gap: 1rem;
+}
+
+.student-photo-card {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1rem;
+    border-radius: 22px;
+    border: 1px solid rgba(19, 66, 122, 0.1);
+    background:
+        radial-gradient(circle at top right, rgba(240, 181, 67, 0.12), transparent 30%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(231, 242, 255, 0.92));
+}
+
+.student-photo-card__copy {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.student-photo-card__copy strong {
+    color: var(--navy-900);
+}
+
+.student-photo-card__copy p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.student-photo-frame {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid rgba(19, 66, 122, 0.12);
+    background: linear-gradient(180deg, rgba(204, 223, 247, 0.5), rgba(247, 251, 255, 0.96));
+    box-shadow: var(--shadow-md);
+}
+
+.student-photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.student-photo-frame--placeholder {
+    border-style: dashed;
+}
+
+.student-photo-placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    gap: 0.55rem;
+    padding: 1.2rem;
+    text-align: center;
+    color: var(--navy-800);
+}
+
+.student-photo-placeholder strong,
+.print-photo-placeholder strong {
+    width: 74px;
+    height: 74px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+    color: var(--white);
+    font-size: 2rem;
+    box-shadow: 0 12px 26px rgba(19, 66, 122, 0.24);
 }
 
 .note-box {
@@ -1727,6 +1835,31 @@ html[data-theme="dark"] .form-field textarea:focus {
     box-shadow: 0 0 0 4px rgba(88, 130, 204, 0.18);
 }
 
+html[data-theme="dark"] .form-help,
+html[data-theme="dark"] .student-photo-card__copy p {
+    color: #a8b8d3;
+}
+
+html[data-theme="dark"] .checkbox-field {
+    color: #eef4ff;
+}
+
+html[data-theme="dark"] .student-photo-card {
+    border-color: rgba(140, 173, 221, 0.14);
+    background:
+        radial-gradient(circle at top right, rgba(240, 181, 67, 0.1), transparent 30%),
+        linear-gradient(180deg, rgba(18, 34, 56, 0.96), rgba(12, 27, 47, 0.94));
+}
+
+html[data-theme="dark"] .student-photo-frame {
+    border-color: rgba(140, 173, 221, 0.16);
+    background: linear-gradient(180deg, rgba(16, 32, 54, 0.98), rgba(11, 22, 38, 0.96));
+}
+
+html[data-theme="dark"] .student-photo-placeholder {
+    color: #d9e7fb;
+}
+
 html[data-theme="dark"] .note-box,
 html[data-theme="dark"] .form-meta-item,
 html[data-theme="dark"] .detail-grid div,
@@ -1853,12 +1986,102 @@ html[data-theme="dark"] .leader-contact {
     box-shadow: var(--shadow-lg);
 }
 
+.print-shell {
+    display: grid;
+    gap: 1.4rem;
+}
+
 .print-header {
     display: flex;
     align-items: center;
     gap: 1rem;
     padding-bottom: 1.25rem;
     border-bottom: 2px solid rgba(19, 66, 122, 0.1);
+}
+
+.print-header h1 {
+    margin: 0;
+    color: var(--navy-900);
+}
+
+.print-header p {
+    margin: 0.4rem 0 0;
+    color: var(--muted);
+}
+
+.print-identity {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(180px, 220px);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.print-identity__copy {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.print-identity__copy h2 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--navy-900);
+}
+
+.print-identity__copy p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.print-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.print-summary-grid div {
+    display: grid;
+    gap: 0.28rem;
+    padding: 0.9rem 1rem;
+    border-radius: 18px;
+    border: 1px solid rgba(19, 66, 122, 0.1);
+    background: rgba(236, 244, 255, 0.72);
+}
+
+.print-summary-grid span {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.print-summary-grid strong {
+    color: var(--navy-900);
+}
+
+.print-photo-card {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 22px;
+    border: 1px solid rgba(19, 66, 122, 0.14);
+    background: linear-gradient(180deg, rgba(231, 242, 255, 0.92), rgba(247, 251, 255, 1));
+    box-shadow: var(--shadow-md);
+}
+
+.print-photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.print-photo-placeholder {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    gap: 0.7rem;
+    padding: 1.2rem;
+    text-align: center;
+    color: var(--navy-800);
 }
 
 .print-table {
@@ -2146,6 +2369,12 @@ html[data-theme="dark"] .leader-contact {
         text-align: center;
     }
 
+    .student-photo-layout,
+    .print-identity,
+    .print-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
     .contact-overview__actions,
     .leader-actions {
         flex-direction: column;
@@ -2249,6 +2478,11 @@ html[data-theme="dark"] .leader-contact {
     .detail-card p,
     .leader-card p {
         line-height: 1.6;
+    }
+
+    .student-photo-card,
+    .print-photo-card {
+        max-width: 320px;
     }
 
     .leader-card__content h3 {

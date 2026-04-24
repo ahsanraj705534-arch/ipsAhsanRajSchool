@@ -7,7 +7,7 @@ from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
 from urllib.parse import quote_plus
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from dotenv import load_dotenv
 from flask import (
@@ -23,7 +23,7 @@ from flask import (
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from openpyxl import Workbook
-from sqlalchemy import func, or_, text
+from sqlalchemy import func, inspect, or_, text
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -51,6 +51,9 @@ GENDER_OPTIONS = ["Male", "Female", "Other"]
 SECTION_SUGGESTIONS = ["A", "B", "C", "D", "E", "F", "G", "H"]
 NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z .'-]{1,118}$")
 PUBLIC_EDIT_SESSION_KEY = "public_edit_student_id"
+ALLOWED_STUDENT_PHOTO_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+MAX_STUDENT_PHOTO_SIZE_MB = 5
+MAX_STUDENT_PHOTO_BYTES = MAX_STUDENT_PHOTO_SIZE_MB * 1024 * 1024
 HOME_PAGE_CONTENT = {
     "hero": {
         "eyebrow": "God is One | Indian Public School",
@@ -542,6 +545,197 @@ if database_uri.startswith("sqlite"):
     logger.warning("Using local SQLite database at %s", database_uri)
 
 
+def parse_cloudinary_url(cloudinary_url: str) -> dict[str, str]:
+    parsed = urlparse(cloudinary_url.strip())
+    if parsed.scheme != "cloudinary" or not parsed.hostname:
+        return {}
+
+    api_key = unquote(parsed.username or "")
+    api_secret = unquote(parsed.password or "")
+    cloud_name = parsed.hostname.strip()
+
+    if not all([api_key, api_secret, cloud_name]):
+        return {}
+
+    return {
+        "cloud_name": cloud_name,
+        "api_key": api_key,
+        "api_secret": api_secret,
+    }
+
+
+def get_cloudinary_credentials() -> dict[str, str]:
+    cloudinary_url = os.getenv("CLOUDINARY_URL", "").strip()
+    if cloudinary_url:
+        credentials = parse_cloudinary_url(cloudinary_url)
+        if credentials:
+            return credentials
+
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME", "").strip()
+    api_key = os.getenv("CLOUDINARY_API_KEY", "").strip()
+    api_secret = os.getenv("CLOUDINARY_API_SECRET", "").strip()
+
+    if all([cloud_name, api_key, api_secret]):
+        return {
+            "cloud_name": cloud_name,
+            "api_key": api_key,
+            "api_secret": api_secret,
+        }
+
+    return {}
+
+
+def student_photo_upload_enabled() -> bool:
+    return bool(get_cloudinary_credentials())
+
+
+def get_student_photo_upload_folder() -> str:
+    return os.getenv(
+        "CLOUDINARY_UPLOAD_FOLDER", "indian-public-school/students"
+    ).strip("/")
+
+
+def configure_cloudinary_client():
+    credentials = get_cloudinary_credentials()
+    if not credentials:
+        return None
+
+    try:
+        import cloudinary
+    except ImportError:
+        logger.warning("Cloudinary SDK is not installed yet.")
+        return None
+
+    cloudinary.config(
+        cloud_name=credentials["cloud_name"],
+        api_key=credentials["api_key"],
+        api_secret=credentials["api_secret"],
+        secure=True,
+    )
+    return cloudinary
+
+
+def get_uploaded_file_size(file_storage) -> int:
+    stream = file_storage.stream
+    current_position = stream.tell()
+    stream.seek(0, os.SEEK_END)
+    file_size = stream.tell()
+    stream.seek(current_position)
+    return file_size
+
+
+def validate_student_photo_file(file_storage) -> list[str]:
+    if not file_storage or not file_storage.filename:
+        return []
+
+    errors = []
+    filename = file_storage.filename.strip()
+    extension = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+
+    if extension not in ALLOWED_STUDENT_PHOTO_EXTENSIONS:
+        errors.append("Student photo must be a JPG, PNG, or WEBP image.")
+
+    if file_storage.mimetype and not file_storage.mimetype.startswith("image/"):
+        errors.append("Student photo must be uploaded as an image file.")
+
+    try:
+        if get_uploaded_file_size(file_storage) > MAX_STUDENT_PHOTO_BYTES:
+            errors.append(
+                f"Student photo must be {MAX_STUDENT_PHOTO_SIZE_MB} MB or smaller."
+            )
+    except OSError:
+        errors.append("Student photo could not be read. Please choose the file again.")
+
+    file_storage.stream.seek(0)
+    return errors
+
+
+def delete_student_photo_by_public_id(student_id: str, public_id: str | None) -> None:
+    if not public_id:
+        return
+
+    cloudinary_client = configure_cloudinary_client()
+    if not cloudinary_client:
+        return
+
+    try:
+        from cloudinary import uploader
+
+        uploader.destroy(public_id, resource_type="image", invalidate=True)
+    except Exception:
+        logger.exception(
+            "Failed to delete Cloudinary image for student %s", student_id
+        )
+
+
+def upload_student_photo(student, file_storage) -> dict[str, str]:
+    cloudinary_client = configure_cloudinary_client()
+    if not cloudinary_client:
+        raise RuntimeError(
+            "Student photo upload is not ready yet. Add Cloudinary credentials and try again."
+        )
+
+    from cloudinary import uploader
+
+    file_storage.stream.seek(0)
+    upload_result = uploader.upload(
+        file_storage.stream,
+        folder=get_student_photo_upload_folder(),
+        public_id=f"{student.student_id.lower()}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+        resource_type="image",
+        overwrite=True,
+        invalidate=True,
+        transformation=[
+            {"width": 1200, "height": 1200, "crop": "limit"},
+            {"quality": "auto:good"},
+            {"fetch_format": "auto"},
+        ],
+        tags=["student-photo", student.student_id.lower()],
+    )
+
+    return {
+        "photo_url": upload_result["secure_url"],
+        "photo_public_id": upload_result["public_id"],
+    }
+
+
+def sync_student_photo(student, uploaded_file, remove_photo_requested: bool = False) -> list[str]:
+    has_new_upload = bool(
+        uploaded_file and uploaded_file.filename and uploaded_file.filename.strip()
+    )
+
+    if not has_new_upload and not remove_photo_requested:
+        return []
+
+    if remove_photo_requested and not has_new_upload:
+        old_public_id = student.photo_public_id
+        student.photo_url = None
+        student.photo_public_id = None
+        delete_student_photo_by_public_id(student.student_id, old_public_id)
+        return []
+
+    photo_errors = validate_student_photo_file(uploaded_file)
+    if photo_errors:
+        return photo_errors
+
+    try:
+        upload_data = upload_student_photo(student, uploaded_file)
+    except Exception as exc:
+        logger.exception("Student photo upload failed for %s", student.student_id)
+        if isinstance(exc, RuntimeError):
+            return [str(exc)]
+        return ["Student photo upload failed. Please try again."]
+
+    old_public_id = student.photo_public_id
+    student.photo_url = upload_data["photo_url"]
+    student.photo_public_id = upload_data["photo_public_id"]
+
+    if old_public_id and old_public_id != student.photo_public_id:
+        delete_student_photo_by_public_id(student.student_id, old_public_id)
+
+    return []
+
+
 class Student(db.Model):
     __tablename__ = "students"
 
@@ -556,11 +750,36 @@ class Student(db.Model):
     section = db.Column(db.String(10), nullable=False, index=True)
     mobile_number = db.Column(db.String(10), nullable=False)
     address = db.Column(db.String(300), nullable=False)
+    photo_url = db.Column(db.String(500), nullable=True)
+    photo_public_id = db.Column(db.String(255), nullable=True)
     submission_source = db.Column(db.String(20), nullable=False, default="admin")
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
+
+
+def ensure_student_photo_columns() -> None:
+    inspector = inspect(db.engine)
+    if "students" not in inspector.get_table_names():
+        return
+
+    existing_columns = {column["name"] for column in inspector.get_columns("students")}
+    pending_columns = {
+        "photo_url": "VARCHAR(500)",
+        "photo_public_id": "VARCHAR(255)",
+    }
+
+    with db.engine.begin() as connection:
+        for column_name, column_type in pending_columns.items():
+            if column_name in existing_columns:
+                continue
+            connection.execute(
+                text(
+                    f"ALTER TABLE students ADD COLUMN {column_name} {column_type}"
+                )
+            )
+            logger.info("Added missing students.%s column", column_name)
 
 
 def admin_username() -> str:
@@ -798,6 +1017,8 @@ def inject_school_context():
         "gender_options": GENDER_OPTIONS,
         "section_suggestions": SECTION_SUGGESTIONS,
         "current_year": datetime.now().year,
+        "student_photo_upload_ready": student_photo_upload_enabled(),
+        "student_photo_max_size_mb": MAX_STUDENT_PHOTO_SIZE_MB,
         "csrf_token": generate_csrf(),
     }
 
@@ -951,6 +1172,7 @@ def student_registration():
     if request.method == "POST":
         cleaned_data, errors = validate_student_form(request.form)
         submitted_values = request.form.to_dict()
+        uploaded_photo = request.files.get("student_photo")
 
         if errors:
             for error in errors:
@@ -968,15 +1190,20 @@ def student_registration():
                     submission_source="student",
                     **student_form_payload(cleaned_data),
                 )
-                db.session.add(student)
-                db.session.commit()
-                flash(
-                    f"Registration submitted successfully. Your student ID is {student.student_id}.",
-                    "success",
-                )
-                return redirect(
-                    url_for("student_registration", class_name=student.student_class)
-                )
+                photo_errors = sync_student_photo(student, uploaded_photo)
+                if photo_errors:
+                    for error in photo_errors:
+                        flash(error, "danger")
+                else:
+                    db.session.add(student)
+                    db.session.commit()
+                    flash(
+                        f"Registration submitted successfully. Your student ID is {student.student_id}.",
+                        "success",
+                    )
+                    return redirect(
+                        url_for("student_registration", class_name=student.student_class)
+                    )
 
     if preset_class and "student_class" not in submitted_values:
         submitted_values["student_class"] = preset_class
@@ -1065,6 +1292,8 @@ def student_registration_edit(student_id):
     if request.method == "POST":
         cleaned_data, errors = validate_student_form(request.form)
         submitted_values = request.form.to_dict()
+        uploaded_photo = request.files.get("student_photo")
+        remove_photo_requested = request.form.get("remove_student_photo") == "1"
 
         if errors:
             for error in errors:
@@ -1080,14 +1309,23 @@ def student_registration_edit(student_id):
                 }
             else:
                 apply_student_form_data(student, cleaned_data)
-                db.session.commit()
-                flash(
-                    f"Registration updated successfully for student ID {student.student_id}.",
-                    "success",
+                photo_errors = sync_student_photo(
+                    student,
+                    uploaded_photo,
+                    remove_photo_requested=remove_photo_requested,
                 )
-                return redirect(
-                    url_for("student_registration_edit", student_id=student.student_id)
-                )
+                if photo_errors:
+                    for error in photo_errors:
+                        flash(error, "danger")
+                else:
+                    db.session.commit()
+                    flash(
+                        f"Registration updated successfully for student ID {student.student_id}.",
+                        "success",
+                    )
+                    return redirect(
+                        url_for("student_registration_edit", student_id=student.student_id)
+                    )
 
     return render_template(
         "student_form.html",
@@ -1110,6 +1348,7 @@ def add_student():
     if request.method == "POST":
         cleaned_data, errors = validate_student_form(request.form)
         submitted_values = request.form.to_dict()
+        uploaded_photo = request.files.get("student_photo")
 
         if errors:
             for error in errors:
@@ -1127,13 +1366,18 @@ def add_student():
                     submission_source="admin",
                     **student_form_payload(cleaned_data),
                 )
-                db.session.add(student)
-                db.session.commit()
-                flash(
-                    f"Student saved successfully with ID {student.student_id}.",
-                    "success",
-                )
-                return redirect(url_for("view_students"))
+                photo_errors = sync_student_photo(student, uploaded_photo)
+                if photo_errors:
+                    for error in photo_errors:
+                        flash(error, "danger")
+                else:
+                    db.session.add(student)
+                    db.session.commit()
+                    flash(
+                        f"Student saved successfully with ID {student.student_id}.",
+                        "success",
+                    )
+                    return redirect(url_for("view_students"))
 
     return render_template(
         "student_form.html",
@@ -1170,6 +1414,8 @@ def edit_student(student_pk):
     if request.method == "POST":
         cleaned_data, errors = validate_student_form(request.form)
         submitted_values = request.form.to_dict()
+        uploaded_photo = request.files.get("student_photo")
+        remove_photo_requested = request.form.get("remove_student_photo") == "1"
 
         if errors:
             for error in errors:
@@ -1185,9 +1431,18 @@ def edit_student(student_pk):
                 }
             else:
                 apply_student_form_data(student, cleaned_data)
-                db.session.commit()
-                flash(f"Student {student.student_id} updated successfully.", "success")
-                return redirect(url_for("view_students"))
+                photo_errors = sync_student_photo(
+                    student,
+                    uploaded_photo,
+                    remove_photo_requested=remove_photo_requested,
+                )
+                if photo_errors:
+                    for error in photo_errors:
+                        flash(error, "danger")
+                else:
+                    db.session.commit()
+                    flash(f"Student {student.student_id} updated successfully.", "success")
+                    return redirect(url_for("view_students"))
 
     return render_template(
         "student_form.html",
@@ -1206,6 +1461,7 @@ def edit_student(student_pk):
 def delete_student(student_pk):
     student = Student.query.get_or_404(student_pk)
     deleted_student_id = student.student_id
+    delete_student_photo_by_public_id(student.student_id, student.photo_public_id)
     db.session.delete(student)
     db.session.commit()
     flash(f"Student {deleted_student_id} has been deleted.", "info")
@@ -1320,6 +1576,7 @@ def internal_error(error):
 with app.app_context():
     try:
         db.create_all()
+        ensure_student_photo_columns()
         with db.engine.connect() as connection:
             connection.execute(text("SELECT 1"))
         logger.info("Database initialized successfully using %s", db.engine.url.drivername)

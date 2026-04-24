@@ -13,17 +13,53 @@
     </div>
 
     <section class="print-card">
-        <div class="print-header">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Indian Public School logo" class="brand__logo">
-            <div>
-                <h1>{{ school_info.name }}</h1>
-                <p>{{ school_info.address }}</p>
+        <div class="print-shell">
+            <div class="print-header">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Indian Public School logo" class="brand__logo">
+                <div>
+                    <h1>{{ school_info.name }}</h1>
+                    <p>{{ school_info.address }}</p>
+                </div>
+            </div>
+
+            <div class="print-identity">
+                <div class="print-identity__copy">
+                    <span class="eyebrow">Student Record</span>
+                    <h2>{{ student.student_name }}</h2>
+                    <p>{{ student.student_id }} | Class {{ student.student_class }} | Section {{ student.section }}</p>
+
+                    <div class="print-summary-grid">
+                        <div>
+                            <span>Submission Source</span>
+                            <strong>{{ student.submission_source.title() }}</strong>
+                        </div>
+                        <div>
+                            <span>Gender</span>
+                            <strong>{{ student.gender }}</strong>
+                        </div>
+                        <div>
+                            <span>Date of Birth</span>
+                            <strong>{{ student.date_of_birth.strftime('%d-%m-%Y') }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="print-photo-card">
+                    {% if student.photo_url %}
+                        <img src="{{ student.photo_url }}" alt="Student photo for {{ student.student_name }}">
+                    {% else %}
+                        <div class="print-photo-placeholder">
+                            <strong>{{ student.student_name[:1] | upper }}</strong>
+                            <span>Photo not uploaded</span>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
         <table class="print-table">
-            <tr><th>Student ID</th><td>{{ student.student_id }}</td></tr>
             <tr><th>Student Name</th><td>{{ student.student_name }}</td></tr>
+            <tr><th>Student ID</th><td>{{ student.student_id }}</td></tr>
             <tr><th>Father's Name</th><td>{{ student.father_name }}</td></tr>
             <tr><th>Mother's Name</th><td>{{ student.mother_name }}</td></tr>
             <tr><th>Date of Birth</th><td>{{ student.date_of_birth.strftime('%d-%m-%Y') }}</td></tr>

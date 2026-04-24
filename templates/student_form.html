@@ -155,39 +155,87 @@
                     </div>
                 </form>
             {% else %}
-                <form method="post" class="styled-form form-stack">
+                <form method="post" enctype="multipart/form-data" class="styled-form form-stack">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
                     <section class="form-section">
                         <div class="form-section__header">
                             <span class="eyebrow">Section 1</span>
-                            <h3>Student Details</h3>
-                            <p>Basic student identity and date of birth information.</p>
+                            <h3>Student Details and Photo</h3>
+                            <p>Basic student identity plus a clean portrait for school records and printouts.</p>
                         </div>
 
-                        <div class="form-section-grid">
-                            <div class="form-field">
-                                <label for="student_name">Student Name</label>
-                                <input id="student_name" name="student_name" type="text" required maxlength="120"
-                                       pattern="[A-Za-z .'-]{2,120}"
-                                       value="{{ form_values.get('student_name', student.student_name if student else '') }}">
+                        {% set current_student_name = form_values.get('student_name', student.student_name if student else '') %}
+                        <div class="student-photo-layout">
+                            <div class="form-section-grid">
+                                <div class="form-field">
+                                    <label for="student_name">Student Name</label>
+                                    <input id="student_name" name="student_name" type="text" required maxlength="120"
+                                           pattern="[A-Za-z .'-]{2,120}"
+                                           value="{{ current_student_name }}">
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="date_of_birth">Date of Birth</label>
+                                    <input id="date_of_birth" name="date_of_birth" type="date" required max="{{ today_iso }}"
+                                           value="{{ form_values.get('date_of_birth', student.date_of_birth.isoformat() if student else '') }}">
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="gender">Gender</label>
+                                    <select id="gender" name="gender" required>
+                                        <option value="">Select gender</option>
+                                        {% set current_gender = form_values.get('gender', student.gender if student else '') %}
+                                        {% for gender in gender_options %}
+                                            <option value="{{ gender }}" {% if current_gender == gender %}selected{% endif %}>{{ gender }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
 
-                            <div class="form-field">
-                                <label for="date_of_birth">Date of Birth</label>
-                                <input id="date_of_birth" name="date_of_birth" type="date" required max="{{ today_iso }}"
-                                       value="{{ form_values.get('date_of_birth', student.date_of_birth.isoformat() if student else '') }}">
-                            </div>
+                            <aside class="student-photo-panel">
+                                <div class="student-photo-card">
+                                    <span class="eyebrow">Photo</span>
+                                    <div class="student-photo-frame {% if not (student and student.photo_url) %}student-photo-frame--placeholder{% endif %}">
+                                        {% if student and student.photo_url %}
+                                            <img src="{{ student.photo_url }}" alt="Student photo for {{ student.student_name }}">
+                                        {% else %}
+                                            <div class="student-photo-placeholder">
+                                                <strong>{{ (current_student_name or 'Student')[:1] | upper }}</strong>
+                                                <span>Portrait Preview</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
 
-                            <div class="form-field">
-                                <label for="gender">Gender</label>
-                                <select id="gender" name="gender" required>
-                                    <option value="">Select gender</option>
-                                    {% set current_gender = form_values.get('gender', student.gender if student else '') %}
-                                    {% for gender in gender_options %}
-                                        <option value="{{ gender }}" {% if current_gender == gender %}selected{% endif %}>{{ gender }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                                    <div class="student-photo-card__copy">
+                                        <strong>Student Photo</strong>
+                                        <p>
+                                            Upload a clear front-facing image. Best results come from a portrait photo with the face centered and a simple background.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="student_photo">Upload Photo</label>
+                                    <input id="student_photo" name="student_photo" type="file"
+                                           accept=".jpg,.jpeg,.png,.webp,image/*"
+                                           {% if not student_photo_upload_ready %}disabled{% endif %}>
+                                    <small class="form-help">
+                                        JPG, PNG, or WEBP up to {{ student_photo_max_size_mb }} MB.
+                                        {% if student_photo_upload_ready %}
+                                            Uploads go directly to Cloudinary.
+                                        {% else %}
+                                            Add Cloudinary credentials to enable uploads.
+                                        {% endif %}
+                                    </small>
+                                </div>
+
+                                {% if student and student.photo_url %}
+                                    <label class="checkbox-field">
+                                        <input type="checkbox" name="remove_student_photo" value="1">
+                                        <span>Remove current photo</span>
+                                    </label>
+                                {% endif %}
+                            </aside>
                         </div>
                     </section>
 
