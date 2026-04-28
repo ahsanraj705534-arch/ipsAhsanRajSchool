@@ -382,7 +382,7 @@ CONTACT_PAGE_CONTENT = {
                     ),
                 },
             ],
-            "mobile_number": "+91 XXXXXXXXXX",
+            "mobile_number": "+91 8445582993",
             "email": "najim@example.com",
         },
     ],
