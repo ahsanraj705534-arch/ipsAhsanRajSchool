@@ -2814,4 +2814,26 @@ html[data-theme="dark"] .leader-contact {
         margin: 0;
         padding: 0;
     }
+
+    /* Prevent mobile media queries from collapsing the print grid on A4 */
+    .print-header {
+        flex-direction: row !important;
+        align-items: center !important;
+    }
+
+    .print-identity {
+        grid-template-columns: minmax(0, 1fr) 35mm !important;
+        grid-template-areas:
+            "intro photo"
+            "summary summary" !important;
+    }
+
+    .print-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .print-photo-panel {
+        justify-self: end !important;
+        width: 35mm !important;
+    }
 }

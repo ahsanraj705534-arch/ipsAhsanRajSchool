@@ -2,6 +2,9 @@ import io
 import logging
 import os
 import re
+import zipfile
+import mimetypes
+import urllib.request
 from copy import deepcopy
 from datetime import date, datetime
 from functools import wraps
@@ -1559,6 +1562,71 @@ def export_students():
         mimetype=(
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         ),
+    )
+
+
+@app.route("/students/download-photos")
+@login_required
+def download_student_photos():
+    export_class = request.args.get("class_name", "").strip()
+
+    students_query = Student.query.filter(Student.photo_url.isnot(None))
+    if export_class:
+        students_query = students_query.filter(Student.student_class == export_class)
+
+    students = (
+        students_query.order_by(
+            Student.student_class.asc(),
+            Student.section.asc(),
+            Student.student_name.asc(),
+        ).all()
+    )
+
+    zip_buffer = io.BytesIO()
+    seen = set()
+
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for student in students:
+            url = (student.photo_url or "").strip()
+            if not url:
+                continue
+            try:
+                resp = urllib.request.urlopen(url, timeout=20)
+                data = resp.read()
+                parsed = urlparse(url)
+                ext = os.path.splitext(parsed.path)[1]
+                if not ext:
+                    content_type = resp.headers.get("Content-Type", "")
+                    try:
+                        ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ".jpg"
+                    except Exception:
+                        ext = ".jpg"
+
+                base = re.sub(r"[^A-Za-z0-9 _-]", "", student.student_name).strip()
+                base = base[:120] or student.student_id
+                base = base.replace(" ", "_")
+                filename = f"{base}{ext}"
+                if filename in seen:
+                    filename = f"{base}_{student.student_id}{ext}"
+                seen.add(filename)
+                zf.writestr(filename, data)
+            except Exception:
+                logger.exception("Failed to fetch photo for %s", student.student_id)
+                continue
+
+    zip_buffer.seek(0)
+
+    if export_class:
+        safe_class = re.sub(r"[^A-Za-z0-9_-]+", "-", export_class)
+        zip_name = f"indian_public_school_photos_class_{safe_class}_{date.today().isoformat()}.zip"
+    else:
+        zip_name = f"indian_public_school_photos_{date.today().isoformat()}.zip"
+
+    return send_file(
+        zip_buffer,
+        as_attachment=True,
+        download_name=zip_name,
+        mimetype="application/zip",
     )
 
 

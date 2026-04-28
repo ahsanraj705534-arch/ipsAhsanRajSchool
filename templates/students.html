@@ -14,6 +14,7 @@
             <div class="dashboard-actions">
                 <a href="{{ url_for('add_student') }}" class="button">Add Student</a>
                 <a href="{{ url_for('export_students') }}" class="button button--ghost">Download Excel</a>
+                <a href="{{ url_for('download_student_photos') }}" class="button button--ghost">Download Photos (ZIP)</a>
             </div>
         </div>
 
@@ -49,7 +50,7 @@
                     <span class="class-card__label">Class</span>
                     <h3>{{ class_name }}</h3>
                     <p>{{ class_totals.get(class_name, 0) }} students available in this class</p>
-                    <div class="class-card__actions">
+                        <div class="class-card__actions">
                         <a href="{{ url_for('class_view', class_name=class_name) }}"
                             class="button button--small {% if class_filter != class_name %}button--ghost{% endif %}">
                             {% if class_filter == class_name %}Viewing Class{% else %}View Students{% endif %}
@@ -58,6 +59,10 @@
                            class="button button--small button--ghost">
                             Download Excel
                         </a>
+                            <a href="{{ url_for('download_student_photos', class_name=class_name) }}"
+                               class="button button--small button--ghost">
+                                Download Photos
+                            </a>
                     </div>
                 </article>
             {% endfor %}
@@ -188,6 +193,10 @@
         <a href="{{ url_for('export_students') }}" class="dashboard-mobile-bar__action dashboard-mobile-bar__action--ghost">
             <span>Download</span>
             <strong>Excel</strong>
+        </a>
+        <a href="{{ url_for('download_student_photos') }}" class="dashboard-mobile-bar__action dashboard-mobile-bar__action--ghost">
+            <span>Download</span>
+            <strong>Photos</strong>
         </a>
         <a href="#dashboard-top" class="dashboard-mobile-bar__action dashboard-mobile-bar__action--ghost">
             <span>Back</span>
